@@ -4,8 +4,8 @@ import 'package:wms_app/utils/api.dart';
 import 'package:wms_app/utils/types.dart';
 
 
-class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
+class EmailRegistrationPage extends StatelessWidget {
+  const EmailRegistrationPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -39,11 +39,11 @@ class LoginPage extends StatelessWidget {
                         child: Column(
                           children: [
                             const Text(
-                              "LOGIN",
+                              "REGISTER",
                               style: TextStyle(fontSize: 32, fontWeight: FontWeight.w400),
                             ),
                             const Text(
-                              "Login to an existing email account",
+                              "Register a new email account",
                               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
                             )
                           ],
@@ -72,28 +72,16 @@ class FormFieldComponent extends StatefulWidget  {
 }
 
 class _FormFieldState extends State<FormFieldComponent> {
-  String username = "";
-  String password = "";
+  String email = "";
   
   
-  void handleLogin() async {
-    LoginResponseCode result = await loginUser(username, password);
-    switch (result) {
-      case LoginResponseCode.authorized:
-        logger.i("Successfully login!");
-        AppState.pageState.value = PageStateType.deviceList;
-        break;
-      case LoginResponseCode.unauthorized:
-        break;
-      case LoginResponseCode.serverError:
-        break;
-      default:
-        break;
-    }
+  void handleLogin() {
+    AppState.pageState.value = PageStateType.login;
   }
 
   void handleRegister() {
-    AppState.pageState.value = PageStateType.signup;
+    if (email.isEmpty) return;
+    logger.i("Registering..");
   }
 
   @override
@@ -101,20 +89,20 @@ class _FormFieldState extends State<FormFieldComponent> {
     return Column(
       spacing: 10,
       children: [
-        //? Text Field for Username
+        //? Text Field for Email
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
               padding: EdgeInsets.only(left: 15, bottom: 5),
               child: const Text(
-                "Username",
+                "Email",
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               )
             ),
             TextField(
               decoration: InputDecoration(
-                hintText: "You remember your username, right?",
+                hintText: "Email please? :)",
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
                   borderSide: BorderSide(color: Colors.grey),
@@ -130,43 +118,7 @@ class _FormFieldState extends State<FormFieldComponent> {
               ),
               onChanged: (value) {
                 setState(() {
-                  username = value;
-                });
-              },
-            )
-          ],
-        ),
-        //? Text Field for Password
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsets.only(left: 15, bottom: 5),
-              child: const Text(
-                "Password",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-              )
-            ),
-            TextField(
-              obscureText: true,
-              decoration: InputDecoration(
-                hintText: "Password or hack this app >:)",
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
-                  borderSide: BorderSide(color: Colors.grey),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
-                  borderSide: const BorderSide(color: Colors.black),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
-                  borderSide: const BorderSide(color: Color.fromARGB(255, 0, 58, 112), width: 1.5),
-                ),
-              ),
-              onChanged: (value) {
-                setState(() {
-                  password = value;
+                  email = value;
                 });
               },
             )
@@ -184,16 +136,16 @@ class _FormFieldState extends State<FormFieldComponent> {
                 backgroundColor: Colors.black,
                 foregroundColor: Colors.white,
               ),
-              onPressed: handleLogin,
-              child: const Text("Login to Dashboard")
+              onPressed: handleRegister,
+              child: const Text("Register Email!")
             ),
             //? Signup Button
             OutlinedButton(
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 24),
               ),
-              onPressed: handleRegister,
-              child: const Text("Registeration")
+              onPressed: handleLogin,
+              child: const Text("Back to Login")
             ),
           ],
         )

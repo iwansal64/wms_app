@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wms_app/pages/login.dart';
 import 'package:wms_app/pages/page_not_found.dart';
+import 'package:wms_app/pages/registeration/email_registeration.dart';
 import 'package:wms_app/state.dart';
 import 'package:wms_app/utils/types.dart';
 
@@ -21,6 +22,8 @@ class _WrapperState extends State<WrapperPage> {
         switch(data) {
           case PageStateType.login:
             return LoginPage();
+          case PageStateType.signup:
+            return EmailRegistrationPage();
           default:
             return NotFoundPage();
         }
