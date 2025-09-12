@@ -73,15 +73,48 @@ class FormFieldComponent extends StatefulWidget  {
 
 class _FormFieldState extends State<FormFieldComponent> {
   String email = "";
+
+  String errorMessage = "";
+  bool registrationProcess = false;
   
+  void showErrorMessage(String message) {
+    setState(() {
+      errorMessage = message;
+    });
+  }
   
   void handleLogin() {
     AppState.pageState.value = PageStateType.login;
   }
 
-  void handleRegister() {
-    if (email.isEmpty) return;
-    logger.i("Registering..");
+  void handleRegister() async {
+    if (registrationProcess) return;
+    if (email.isEmpty) {
+      showErrorMessage("Welp.. the email is empty bruh");
+      return;
+    }
+
+    setState(() {
+      registrationProcess = true;
+    });
+
+    APIResponseCode result = await registerEmail(email);
+    switch (result) {
+      case APIResponseCode.ok:
+        logger.i("Successfully sent the email!");
+        AppState.pageState.value = PageStateType.emailVerification;
+        break;
+      case APIResponseCode.conflict:
+        logger.e("There's duplicates!");
+        showErrorMessage("Email has been registered");
+        break;
+      default:
+        break;
+    }
+    
+    setState(() {
+      registrationProcess = false;
+    });
   }
 
   @override
@@ -119,8 +152,15 @@ class _FormFieldState extends State<FormFieldComponent> {
               onChanged: (value) {
                 setState(() {
                   email = value;
+                  errorMessage = "";
                 });
               },
+            ),
+            Text(
+              errorMessage,
+              style: TextStyle(
+                color: Colors.red
+              ),
             )
           ],
         ),
@@ -130,14 +170,19 @@ class _FormFieldState extends State<FormFieldComponent> {
           spacing: 15,
           children: [
             //? Login Button
-            OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 24),
-                backgroundColor: Colors.black,
-                foregroundColor: Colors.white,
+            Opacity(
+              opacity: registrationProcess ? 0.5 : 1,
+              child: OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 24),
+                  backgroundColor: Colors.black,
+                  foregroundColor: Colors.white,
+                  disabledBackgroundColor: Colors.black,
+                  disabledForegroundColor: Colors.white,
+                ),
+                onPressed: registrationProcess ? null : handleRegister,
+                child: const Text("Register Email!"),
               ),
-              onPressed: handleRegister,
-              child: const Text("Register Email!")
             ),
             //? Signup Button
             OutlinedButton(

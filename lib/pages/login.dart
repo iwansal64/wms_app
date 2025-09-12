@@ -77,15 +77,11 @@ class _FormFieldState extends State<FormFieldComponent> {
   
   
   void handleLogin() async {
-    LoginResponseCode result = await loginUser(username, password);
+    APIResponseCode result = await loginUser(username, password);
     switch (result) {
-      case LoginResponseCode.authorized:
+      case APIResponseCode.ok:
         logger.i("Successfully login!");
         AppState.pageState.value = PageStateType.deviceList;
-        break;
-      case LoginResponseCode.unauthorized:
-        break;
-      case LoginResponseCode.serverError:
         break;
       default:
         break;
@@ -93,7 +89,7 @@ class _FormFieldState extends State<FormFieldComponent> {
   }
 
   void handleRegister() {
-    AppState.pageState.value = PageStateType.signup;
+    AppState.pageState.value = PageStateType.emailRegistration;
   }
 
   @override

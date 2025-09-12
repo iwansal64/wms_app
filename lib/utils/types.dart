@@ -1,6 +1,7 @@
 enum PageStateType {
   login,
-  signup,
+  emailRegistration,
+  emailVerification,
   deviceList,
   monitor
 }
