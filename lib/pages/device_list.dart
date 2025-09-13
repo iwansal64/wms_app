@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wms_app/components/device_card.dart';
 
 class DeviceListPage extends StatelessWidget {
   const DeviceListPage({ super.key });
@@ -10,97 +11,59 @@ class DeviceListPage extends StatelessWidget {
         decoration: BoxDecoration(
           color: Color.fromARGB(255, 0, 58, 112)
         ),
-        child: Padding(
-          padding: EdgeInsets.all(15),
-          child: FractionallySizedBox(
-            widthFactor: 0.8,
-            child: Container(
-              alignment: Alignment.center,
-              decoration: BoxDecoration(color: Colors.black),
-              child: Column(
-                children: [
-                  //? Title
-                  const Text(
-                    "Available Devices",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 36
-                    ),
-                  ),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: 500
+            ),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+              child: Container(
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(color: Colors.black, width: 2),
+                  borderRadius: BorderRadius.circular(15)
+                ),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 0, vertical: 20),
+                  child: Column(
+                    children: [
+                      //? Title
+                      const Text(
+                        "Available Devices",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 28,
+                          fontWeight: FontWeight.w700
+                        ),
+                      ),
 
-                  //? Device List
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(color: Colors.red),
-                      child: SingleChildScrollView(
+                      //? Device List
+                      Expanded(
                         child: Container(
-                          decoration: BoxDecoration(color: Colors.blue),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            spacing: 15,
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    border: BoxBorder.all(width: 2),
-                                    borderRadius: BorderRadius.circular(15)
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      const Text(
-                                        "Device 1",
-                                        style: TextStyle(
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.w400
-                                        ),
-                                      ),
-                                      const Text(
-                                        "Last seen: now",
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w200
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                )
+                          alignment: Alignment.topCenter,
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.vertical,
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 40, vertical: 30),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                spacing: 30,
+                                children: [
+                                  //? List of device widget is in here
+                                  DeviceCard(deviceName: "Plant 1", createdAt: "29-09-2025"),
+                                  DeviceCard(deviceName: "House", createdAt: "22-08-2025"),
+                                ],
                               ),
-                              Expanded(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    border: BoxBorder.all(width: 2),
-                                    borderRadius: BorderRadius.circular(15)
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      const Text(
-                                        "Device 1",
-                                        style: TextStyle(
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.w400
-                                        ),
-                                      ),
-                                      const Text(
-                                        "Last seen: now",
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w200
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                )
-                              ),
-                            ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
@@ -109,3 +72,4 @@ class DeviceListPage extends StatelessWidget {
     );
   }
 }
+
