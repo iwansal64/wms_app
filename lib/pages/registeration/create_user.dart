@@ -4,8 +4,8 @@ import 'package:wms_app/utils/api.dart';
 import 'package:wms_app/utils/types.dart';
 
 
-class EmailVerificationPage extends StatelessWidget {
-  const EmailVerificationPage({super.key});
+class CreateUserPage extends StatelessWidget {
+  const CreateUserPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -44,11 +44,11 @@ class EmailVerificationPage extends StatelessWidget {
                           child: Column(
                             children: [
                               const Text(
-                                "Enter token",
+                                "Create User",
                                 style: TextStyle(fontSize: 32, fontWeight: FontWeight.w400),
                               ),
                               const Text(
-                                "Create an account",
+                                "Fill the form please :)",
                                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
                               )
                             ],
@@ -78,10 +78,12 @@ class FormFieldComponent extends StatefulWidget  {
 }
 
 class _FormFieldState extends State<FormFieldComponent> {
-  String token = "";
+  String username = "";
+  String password = "";
+  String confrimationPassword = "";
   
   String errorMessage = "";
-  bool verifyProcess = false;
+  bool createUserProcess = false;
 
   void showErrorMessage(String message) {
     setState(() {
@@ -89,23 +91,28 @@ class _FormFieldState extends State<FormFieldComponent> {
     });
   }
   
-  void handleVerify() async {
-    if(token.isEmpty) {
+  void handleCreateUser() async {    
+    if(username.isEmpty || password.isEmpty) {
       showErrorMessage("Fill all the fields please");
       return;
     }
     
+    if(password != confrimationPassword) {
+      showErrorMessage("Password is not matching");
+      return;
+    }
+
     setState(() {
-      verifyProcess = true;
+      createUserProcess = true;
     });
     
-    APIResponseCode result = await verifyEmail(token);
+    APIResponseCode result = await createUser(username, password);
     switch(result) {
       case APIResponseCode.ok:
-        AppState.pageState.value = PageStateType.createUser;
+        AppState.pageState.value = PageStateType.login;
         break;
       case APIResponseCode.unauthorized:
-        showErrorMessage("Well.. The token is wrong, buddy.");
+        showErrorMessage("Umm... Are you a hacker?");
         break;
       case APIResponseCode.socketError:
         showErrorMessage("Server doesn't response. Please try again later :(");
@@ -115,7 +122,7 @@ class _FormFieldState extends State<FormFieldComponent> {
     }
 
     setState(() {
-      verifyProcess = false;
+      createUserProcess = false;
     });
   }
 
@@ -131,13 +138,13 @@ class _FormFieldState extends State<FormFieldComponent> {
             Padding(
               padding: EdgeInsets.only(left: 15, bottom: 5),
               child: const Text(
-                "Token",
+                "Username",
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               )
             ),
             TextField(
               decoration: InputDecoration(
-                hintText: "Have you ever see your email inbox? :)",
+                hintText: "Make sure it looks good on my DB!",
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
                   borderSide: BorderSide(color: Colors.grey),
@@ -153,7 +160,81 @@ class _FormFieldState extends State<FormFieldComponent> {
               ),
               onChanged: (value) {
                 setState(() {
-                  token = value;
+                  username = value;
+                  errorMessage = "";
+                });
+              },
+            )
+          ],
+        ),
+        //? Text Field for Password
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(left: 15, bottom: 5),
+              child: const Text(
+                "Create Password",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              )
+            ),
+            TextField(
+              obscureText: true,
+              decoration: InputDecoration(
+                hintText: "Have you write it on paper yet?",
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide(color: Colors.grey),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: const BorderSide(color: Colors.black),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: const BorderSide(color: Color.fromARGB(255, 0, 58, 112), width: 1.5),
+                ),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  password = value;
+                  errorMessage = "";
+                });
+              },
+            )
+          ],
+        ),
+        //? Text Field for Password Confirmation
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(left: 15, bottom: 5),
+              child: const Text(
+                "Confirm Password",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              )
+            ),
+            TextField(
+              obscureText: true,
+              decoration: InputDecoration(
+                hintText: "Have you write it on paper yet?",
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide(color: Colors.grey),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: const BorderSide(color: Colors.black),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: const BorderSide(color: Color.fromARGB(255, 0, 58, 112), width: 1.5),
+                ),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  confrimationPassword = value;
                   errorMessage = "";
                 });
               },
@@ -169,15 +250,15 @@ class _FormFieldState extends State<FormFieldComponent> {
         Spacer(),
         //? Verify Button
         Opacity(
-          opacity: verifyProcess ? 0.2 : 1,
+          opacity: createUserProcess ? 0.2 : 1,
           child: OutlinedButton(
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
               disabledBackgroundColor: Colors.white,
               disabledForegroundColor: Colors.black
             ),
-            onPressed: verifyProcess ? null : handleVerify,
-            child: const Text("Verify")
+            onPressed: createUserProcess ? null : handleCreateUser,
+            child: const Text("Create User!")
           )
         ),
       ],

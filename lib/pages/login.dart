@@ -74,18 +74,44 @@ class FormFieldComponent extends StatefulWidget  {
 class _FormFieldState extends State<FormFieldComponent> {
   String username = "";
   String password = "";
+
+  String errorMessage = "";
+  bool loginProcess = false;
+
+
+  void showErrorMessage(String message) {
+    setState(() {
+      errorMessage = message;
+    });
+  }
   
   
   void handleLogin() async {
+    if(username.isEmpty || password.isEmpty) {
+      showErrorMessage("Please fill the username and password! >:(");
+      return;
+    }
+    
+    setState(() {
+      loginProcess = true;
+    });
+    
     APIResponseCode result = await loginUser(username, password);
     switch (result) {
       case APIResponseCode.ok:
         logger.i("Successfully login!");
         AppState.pageState.value = PageStateType.deviceList;
         break;
+      case APIResponseCode.unauthorized:
+        showErrorMessage("Username or password is wrong. :(");
+        break;
       default:
         break;
     }
+
+    setState(() {
+      loginProcess = false;
+    });
   }
 
   void handleRegister() {
@@ -127,6 +153,7 @@ class _FormFieldState extends State<FormFieldComponent> {
               onChanged: (value) {
                 setState(() {
                   username = value;
+                  errorMessage = "";
                 });
               },
             )
@@ -163,30 +190,43 @@ class _FormFieldState extends State<FormFieldComponent> {
               onChanged: (value) {
                 setState(() {
                   password = value;
+                  errorMessage = "";
                 });
               },
             )
           ],
         ),
+        Text(
+          errorMessage,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Colors.red
+          )
+        ),
         Spacer(),
-        Row(
+        Column(
           mainAxisAlignment: MainAxisAlignment.center,
           spacing: 15,
           children: [
             //? Login Button
-            OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 24),
-                backgroundColor: Colors.black,
-                foregroundColor: Colors.white,
+            Opacity(
+              opacity: loginProcess ? 0.2 : 1,
+              child: OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 14),
+                  backgroundColor: Colors.black,
+                  foregroundColor: Colors.white,
+                  disabledBackgroundColor: Colors.black,
+                  disabledForegroundColor: Colors.white,
+                ),
+                onPressed: loginProcess ? null : handleLogin,
+                child: const Text("Login to Dashboard")
               ),
-              onPressed: handleLogin,
-              child: const Text("Login to Dashboard")
             ),
             //? Signup Button
             OutlinedButton(
               style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 24),
+                padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 14),
               ),
               onPressed: handleRegister,
               child: const Text("Registeration")

@@ -108,6 +108,13 @@ class _FormFieldState extends State<FormFieldComponent> {
         logger.e("There's duplicates!");
         showErrorMessage("Email has been registered");
         break;
+      case APIResponseCode.timeout:
+        logger.e("Timeout!");
+        showErrorMessage("Connection timeout. Please check your internet connection.");
+      case APIResponseCode.socketError:
+        logger.e("Server unresponsive!");
+        showErrorMessage("Server doesn't response. Please try again later :(");
+        break;
       default:
         break;
     }
@@ -156,16 +163,20 @@ class _FormFieldState extends State<FormFieldComponent> {
                 });
               },
             ),
-            Text(
-              errorMessage,
-              style: TextStyle(
-                color: Colors.red
+            //? Error message
+            Center(
+              child: Text(
+                errorMessage,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.red,
+                ),
               ),
-            )
+            ),
           ],
         ),
         Spacer(),
-        Row(
+        Column(
           mainAxisAlignment: MainAxisAlignment.center,
           spacing: 15,
           children: [
@@ -174,7 +185,7 @@ class _FormFieldState extends State<FormFieldComponent> {
               opacity: registrationProcess ? 0.5 : 1,
               child: OutlinedButton(
                 style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 24),
+                  padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 14),
                   backgroundColor: Colors.black,
                   foregroundColor: Colors.white,
                   disabledBackgroundColor: Colors.black,
@@ -187,7 +198,7 @@ class _FormFieldState extends State<FormFieldComponent> {
             //? Signup Button
             OutlinedButton(
               style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 24),
+                padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 14),
               ),
               onPressed: handleLogin,
               child: const Text("Back to Login")

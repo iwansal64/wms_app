@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:wms_app/pages/device_list.dart';
 import 'package:wms_app/pages/login.dart';
 import 'package:wms_app/pages/page_not_found.dart';
+import 'package:wms_app/pages/registeration/create_user.dart';
 import 'package:wms_app/pages/registeration/email_registeration.dart';
 import 'package:wms_app/pages/registeration/email_verification.dart';
 import 'package:wms_app/state.dart';
@@ -27,6 +29,10 @@ class _WrapperState extends State<WrapperPage> {
             return EmailRegistrationPage();
           case PageStateType.emailVerification:
             return EmailVerificationPage();
+          case PageStateType.createUser:
+            return CreateUserPage();
+          case PageStateType.deviceList:
+            return DeviceListPage();
           default:
             return NotFoundPage();
         }
