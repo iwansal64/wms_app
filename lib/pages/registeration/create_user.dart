@@ -49,6 +49,7 @@ class CreateUserPage extends StatelessWidget {
                               ),
                               const Text(
                                 "Fill the form please :)",
+                                textAlign: TextAlign.center,
                                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
                               )
                             ],

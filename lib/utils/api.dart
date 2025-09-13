@@ -1,11 +1,13 @@
-import 'dart:io';
 
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'dart:convert';
 import 'dart:async';
 
 import 'package:wms_app/utils/cookies_handler.dart';
+import 'package:wms_app/utils/model.dart';
+import 'package:wms_app/utils/storage_handler.dart';
 
 final String apiAddress = "http://192.168.1.9:8080";
 
@@ -30,7 +32,22 @@ Future<APIReturnType> get(String endpoint) async {
   final url = Uri.parse(apiAddress+endpoint);
 
   try {
-    final http.Response response = await http.get(url).timeout(const Duration(seconds: 10));
+    String? cookie = await AppStorage.getString("cookies");
+    
+    final http.Response response = await http.get(
+      url,
+      headers: {
+        "Cookie": cookie ?? ""
+      }
+    ).timeout(const Duration(seconds: 10));
+
+    String? newCookies = response.headers["set-cookie"];
+    if(newCookies != null) {
+      logger.i("Saving Cookies");
+      await saveCookies(newCookies);
+      logger.i("Cookies Saved");
+    }
+
     return APIResponse(response);
   }
   catch(err) {
@@ -43,7 +60,7 @@ Future<APIReturnType> post(String endpoint, String body) async {
   final url = Uri.parse(apiAddress+endpoint);
 
   try {
-    String? cookie = await loadRawCookies();
+    String? cookie = await AppStorage.getString("cookies");
     
     final http.Response response = await http.post(
       url,
@@ -88,7 +105,7 @@ enum APIResponseCode {
 }
 
 
-APIResponseCode returnCodeToResponseCode(APIReturnType result) {
+APIResponseCode returnTypeToResponseCode(APIReturnType result) {
   switch (result) {
     case APIResponse(:var response):
       if(response.statusCode == 200) {
@@ -117,6 +134,10 @@ APIResponseCode returnCodeToResponseCode(APIReturnType result) {
 
 }
 
+
+//- ============================ API Features =============================
+
+//? Login User
 Future<APIResponseCode> loginUser(String username, String password) async {
   logger.i("Sending login request..");
   APIReturnType result = await post(
@@ -129,9 +150,10 @@ Future<APIResponseCode> loginUser(String username, String password) async {
     )
   );
 
-  return returnCodeToResponseCode(result);
+  return returnTypeToResponseCode(result);
 }
 
+//? Register Email
 Future<APIResponseCode> registerEmail(String email) async {
   logger.i("Sending register request for this email $email");
   APIReturnType result = await post(
@@ -143,9 +165,10 @@ Future<APIResponseCode> registerEmail(String email) async {
     )
   );
 
-  return returnCodeToResponseCode(result);
+  return returnTypeToResponseCode(result);
 }
 
+//? Verify Token for Email Verification
 Future<APIResponseCode> verifyEmail(String token) async {
   logger.i("Sending verification request");
   APIReturnType result = await post(
@@ -157,9 +180,10 @@ Future<APIResponseCode> verifyEmail(String token) async {
     )  
   );
 
-  return returnCodeToResponseCode(result);
+  return returnTypeToResponseCode(result);
 }
 
+//? Create User
 Future<APIResponseCode> createUser(String username, String password) async {
   logger.i("Sending create user request");
   APIReturnType result = await post(
@@ -172,5 +196,40 @@ Future<APIResponseCode> createUser(String username, String password) async {
     )
   );
 
-  return returnCodeToResponseCode(result);
+  return returnTypeToResponseCode(result);
+}
+
+//? Get Device Data
+sealed class GetDeviceReturnType {}
+
+class DevicesData extends GetDeviceReturnType {
+  final List<Device> devices;
+  DevicesData(this.devices);
+}
+
+class NoDeviceData extends GetDeviceReturnType {
+  final APIResponseCode responseCode;
+  NoDeviceData(this.responseCode);
+}
+
+Future<GetDeviceReturnType> getDevices() async {
+  logger.i("Getting device data");
+  APIReturnType response = await get("/device");
+  switch(response) {
+    case APIResponse(:var response):
+      List<Device> devicesData = [];
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      if(!data.containsKey("devices")) {
+        logger.e("The returned value from server doesn't contains devices key");
+        return NoDeviceData(APIResponseCode.serverError);
+      }
+
+      for(Map<String, dynamic> device in data["devices"]) {
+        devicesData.add(Device.fromJson(device));
+      }
+
+      return DevicesData(devicesData);
+    default:
+      return NoDeviceData(returnTypeToResponseCode(response));
+  }
 }

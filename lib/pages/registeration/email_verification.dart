@@ -49,6 +49,7 @@ class EmailVerificationPage extends StatelessWidget {
                               ),
                               const Text(
                                 "Create an account",
+                                textAlign: TextAlign.center,
                                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
                               )
                             ],

@@ -44,6 +44,7 @@ class EmailRegistrationPage extends StatelessWidget {
                             ),
                             const Text(
                               "Register a new email account",
+                              textAlign: TextAlign.center,
                               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
                             )
                           ],

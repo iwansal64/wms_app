@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:wms_app/components/device_card.dart';
+import 'package:wms_app/utils/api.dart';
+import 'package:wms_app/utils/model.dart';
+import 'package:wms_app/utils/util.dart';
 
 class DeviceListPage extends StatelessWidget {
   const DeviceListPage({ super.key });
@@ -41,30 +44,77 @@ class DeviceListPage extends StatelessWidget {
 
                       //? Device List
                       Expanded(
-                        child: Container(
-                          alignment: Alignment.topCenter,
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.vertical,
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 40, vertical: 30),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                spacing: 30,
-                                children: [
-                                  //? List of device widget is in here
-                                  DeviceCard(deviceName: "Plant 1", createdAt: "29-09-2025"),
-                                  DeviceCard(deviceName: "House", createdAt: "22-08-2025"),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
+                        child: DeviceList()
                       ),
                     ],
                   ),
                 ),
               ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class DeviceList extends StatefulWidget {
+  const DeviceList({ super.key });
+
+  @override
+  State<StatefulWidget> createState() => _DeviceListState();
+}
+
+class _DeviceListState extends State<DeviceList> {
+  List<Device> deviceList = []; //? Used to store devices data
+  bool isDevicesFetched = false; //? Used to check if currently waiting for device data or not
+
+  @override
+  void initState() {
+    super.initState();
+
+    logger.d("Sending device data..");
+    getDevices().then((result) {
+      switch (result) {
+        case DevicesData(:var devices):
+          setState(() {
+            deviceList = devices;
+          });
+        case NoDeviceData(:var responseCode):
+          logger.e("There's an error. Error: $responseCode");
+      }
+      
+      setState(() {
+        isDevicesFetched = true;
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      alignment: Alignment.topCenter,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            spacing: 30,
+            children: (
+              isDevicesFetched ? 
+              deviceList
+              .where((deviceData) => deviceData.isValid)
+              .map((deviceData) => DeviceCard(
+                deviceName: deviceData.deviceName, 
+                createdAt: formatLongDate(deviceData.createdAt), 
+                deviceId: deviceData.id,
+                description: deviceData.description,
+              ))
+              .toList()
+              :
+              List.filled(3, DeviceCardDummy())
             ),
           ),
         ),

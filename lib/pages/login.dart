@@ -44,6 +44,7 @@ class LoginPage extends StatelessWidget {
                             ),
                             const Text(
                               "Login to an existing email account",
+                              textAlign: TextAlign.center,
                               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
                             )
                           ],

@@ -1,4 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wms_app/utils/storage_handler.dart';
 
 //? Convert String Cookies Into Mapped
 Map<String, Map<String, String>> mapCookies(String cookies) {
@@ -36,26 +37,6 @@ String unmapCookies(Map<String, Map<String, String>> mappedCookies) {
 }
 
 
-//? RAW SAVE COOKIES
-Future<void> saveRawCookies(String cookies) async {
-  final prefs = await SharedPreferences.getInstance();
-  if(cookies.isEmpty) {
-    await prefs.remove("cookies");
-    return;
-  }
-  await prefs.setString('cookies', cookies);
-}
-
-//? RAW LOAD COOKIES
-Future<String?> loadRawCookies() async {
-  final prefs = await SharedPreferences.getInstance();
-  String? cookies = prefs.getString('cookies');
-  if(cookies != null) {
-    return cookies;
-  }
-  return null;
-}
-
 
 
 //? LOAD COOKIES
@@ -70,12 +51,12 @@ Future<Map<String, Map<String, String>>?> loadCookies() async {
 
 //? SAVE COOKIES
 Future<void> saveCookies(String cookies) async {
-  saveRawCookies("");
+  await AppStorage.saveString("cookies", "");
   Map<String, Map<String, String>>? storedCookies = await loadCookies();
   if(storedCookies == null) {
     Map<String, Map<String, String>> fetched = mapCookies(cookies);
     String result = unmapCookies(fetched);
-    await saveRawCookies(result);
+    await AppStorage.saveString("cookies", result);
     return;
   }
   
@@ -84,5 +65,5 @@ Future<void> saveCookies(String cookies) async {
     storedCookies[element.key] = element.value;
   }
   String result = unmapCookies(storedCookies);
-  await saveRawCookies(result);
+  await AppStorage.saveString("cookies", result);
 }
