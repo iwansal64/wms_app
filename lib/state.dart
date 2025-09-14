@@ -3,8 +3,21 @@ import 'package:wms_app/utils/model.dart';
 import 'package:wms_app/utils/types.dart';
 
 class AppState {
+  //? Telling us which page is currently should shows up
   static ValueNotifier<PageStateType> pageState = ValueNotifier(PageStateType.login);
-  static Map<String, ValueNotifier<Sensor>> sensorsState = {};
-  static ValueNotifier<Uint8List> waterLeakageState = ValueNotifier(Uint8List(1));
-  static ValueNotifier<double> averageWaterFlow = ValueNotifier(0);
+  
+  //? Telling us the data of each sensors of each devices
+  static ValueNotifier<Map<String, List<double>>> allWaterFlowsState = ValueNotifier({});
+
+  //? Telling us current water leakage status for each devices
+  static ValueNotifier<Map<String, Uint8List>> waterLeakageState = ValueNotifier({});
+
+  //? Telling us the average of water flow for all sensors of each device
+  static ValueNotifier<Map<String, double>> averageWaterFlowState = ValueNotifier({});
+
+  //? Telling us the current device id, that user choose
+  static ValueNotifier<String?> deviceIdState = ValueNotifier(null);
+  
+  //? Telling us the current device id, that user choose
+  static ValueNotifier<List<Device>> devicesState = ValueNotifier([]);
 }

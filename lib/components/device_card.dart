@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:wms_app/state.dart';
-import 'package:wms_app/utils/storage_handler.dart';
 import 'package:wms_app/utils/types.dart';
 
 class DeviceCard extends StatelessWidget {
@@ -11,13 +10,15 @@ class DeviceCard extends StatelessWidget {
   
   const DeviceCard({ super.key, required this.deviceName, required this.createdAt, required this.deviceId, required this.description });
 
+  void chooseDevice() async {
+    AppState.deviceIdState.value = deviceId;
+    AppState.pageState.value = PageStateType.monitor;
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () async {
-        await AppStorage.saveString("device_id", deviceId);
-        AppState.pageState.value = PageStateType.monitor;
-      },
+      onTap: chooseDevice,
       child: AspectRatio(
         aspectRatio: 1 / 1,
         child: Container(

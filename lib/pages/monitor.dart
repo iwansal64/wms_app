@@ -1,5 +1,8 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:wms_app/state.dart';
+import 'package:wms_app/utils/api.dart';
 import 'package:wms_app/utils/types.dart';
 
 class MonitorPage extends StatelessWidget {
@@ -17,8 +20,8 @@ class MonitorPage extends StatelessWidget {
           spacing: 5,
           children: [
             // Basic Statistics Info
-            WaterLeakageState(),
-            WaterFlowState(),
+            WaterLeakageData(),
+            WaterFlowData(),
             // Sensor List Page Button
             SensorButton(),
             Spacer(),
@@ -96,8 +99,41 @@ class SensorButton extends StatelessWidget {
 }
 
 //? STATISTICS SECTION
-class WaterLeakageState extends StatelessWidget {
-  const WaterLeakageState({ super.key });
+class WaterLeakageData extends StatefulWidget {
+  const WaterLeakageData({ super.key });
+
+  @override
+  State<StatefulWidget> createState() => _WaterLeakageDataState();
+}
+
+class _WaterLeakageDataState extends State<WaterLeakageData> {
+  int waterLeaked = 0;
+
+  void updateWaterLeaked() {
+    // Get required data
+    String? deviceId = AppState.deviceIdState.value;
+    Map<String, Uint8List> waterLeakageState = AppState.waterLeakageState.value;
+    
+    // If the data is not valid
+    if(deviceId == null || waterLeakageState[deviceId] == null) return;
+    
+    setState(() {
+      waterLeaked = waterLeakageState[deviceId]!.first;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    AppState.waterLeakageState.addListener(updateWaterLeaked);
+  }
+
+  @override
+  void dispose() {
+    AppState.waterLeakageState.removeListener(updateWaterLeaked);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -121,31 +157,26 @@ class WaterLeakageState extends StatelessWidget {
                 fontWeight: FontWeight.w400
               ),
             ),
-            ValueListenableBuilder(
-              valueListenable: AppState.waterLeakageState,
-              builder: (context, waterLeaked, _) {
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  spacing: 5,
-                  children: [
-                    Text(
-                      waterLeaked[0] != 0 ? "Leak in Sensor: ${waterLeaked[0]}!" : "Stable",
-                      style: TextStyle(
-                        fontSize: 24,
-                        color: waterLeaked[0] != 0 ? const Color.fromARGB(255, 126, 0, 0) : const Color.fromARGB(255, 0, 50, 136),
-                        decoration: TextDecoration.none,
-                        fontWeight: FontWeight.w500
-                      ),
-                    ),
-                    Icon(
-                      waterLeaked[0] != 0 ? Icons.warning : Icons.circle_outlined,
-                      color: waterLeaked[0] != 0 ? const Color.fromARGB(255, 126, 0, 0) : const Color.fromARGB(255, 0, 50, 136),
-                      size: 16,
-                    )
-                  ],
-                );
-              }
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              spacing: 5,
+              children: [
+                Text(
+                  waterLeaked != 0 ? "Leak in Sensor: $waterLeaked!" : "Stable",
+                  style: TextStyle(
+                    fontSize: 24,
+                    color: waterLeaked != 0 ? const Color.fromARGB(255, 126, 0, 0) : const Color.fromARGB(255, 0, 50, 136),
+                    decoration: TextDecoration.none,
+                    fontWeight: FontWeight.w500
+                  ),
+                ),
+                Icon(
+                  waterLeaked != 0 ? Icons.warning : Icons.circle_outlined,
+                  color: waterLeaked != 0 ? const Color.fromARGB(255, 126, 0, 0) : const Color.fromARGB(255, 0, 50, 136),
+                  size: 16,
+                )
+              ],
             )
           ],
         ),
@@ -154,12 +185,44 @@ class WaterLeakageState extends StatelessWidget {
   }
 }
 
-class WaterFlowState extends StatelessWidget {
-  const WaterFlowState({ super.key });
+class WaterFlowData extends StatefulWidget {
+  const WaterFlowData({ super.key });
+
+  @override
+  State<StatefulWidget> createState() => _WaterFlowDataState();
+}
+
+class _WaterFlowDataState extends State<WaterFlowData> {
+  double waterFlow = 0;
+
+  void updateWaterFlow() {
+    // Get required data
+    String? deviceId = AppState.deviceIdState.value;
+    Map<String, double> averageWaterFlowState = AppState.averageWaterFlowState.value;
+    
+    // If the data is not valid
+    if(deviceId == null || averageWaterFlowState[deviceId] == null) return;
+    
+    setState(() {
+      waterFlow = averageWaterFlowState[deviceId]!;
+    });
+  }
+
+  @override void initState() {
+    super.initState();
+    AppState.averageWaterFlowState.addListener(updateWaterFlow);
+  }
+  
+  @override
+  void dispose() {
+    AppState.averageWaterFlowState.removeListener(updateWaterFlow);
+    super.dispose();
+  }
+  
 
   @override
   Widget build(BuildContext context) {
-    return Container( 
+    return Container(
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: Color.fromARGB(100, 255, 255, 255),
@@ -179,35 +242,30 @@ class WaterFlowState extends StatelessWidget {
                 fontWeight: FontWeight.w400
               ),
             ),
-            ValueListenableBuilder(
-              valueListenable: AppState.averageWaterFlow,
-              builder: (context, waterFlow, _) {
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  spacing: 5,
-                  children: [
-                    Text(
-                      "$waterFlow",
-                      style: TextStyle(
-                        fontSize: 28,
-                        color: Colors.black,
-                        decoration: TextDecoration.none,
-                        fontWeight: FontWeight.w500
-                      ),
-                    ),
-                    const Text(
-                      "liter/s",
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.black,
-                        decoration: TextDecoration.none,
-                        fontWeight: FontWeight.w400
-                      ),
-                    )
-                  ],
-                );
-              }
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              spacing: 5,
+              children: [
+                Text(
+                  "$waterFlow",
+                  style: TextStyle(
+                    fontSize: 28,
+                    color: Colors.black,
+                    decoration: TextDecoration.none,
+                    fontWeight: FontWeight.w500
+                  ),
+                ),
+                const Text(
+                  "liter/s",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black,
+                    decoration: TextDecoration.none,
+                    fontWeight: FontWeight.w400
+                  ),
+                )
+              ],
             )
           ],
         ),

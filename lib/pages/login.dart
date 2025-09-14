@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wms_app/state.dart';
 import 'package:wms_app/utils/api.dart';
+import 'package:wms_app/utils/storage_handler.dart';
 import 'package:wms_app/utils/types.dart';
 import 'package:wms_app/utils/websocket_handler.dart';
 
@@ -80,15 +81,20 @@ class _FormFieldState extends State<FormFieldComponent> {
   String errorMessage = "";
   bool loginProcess = false;
 
-
   void showErrorMessage(String message) {
     setState(() {
       errorMessage = message;
     });
   }
   
+
+  void onSuccessLogin() {
+    WebSocketHandler.initialize();
+    AppState.pageState.value = PageStateType.deviceList;
+  }
   
-  void handleLogin() async {
+  
+  void onLoginTrigger() async {
     if(username.isEmpty || password.isEmpty) {
       showErrorMessage("Please fill the username and password! >:(");
       return;
@@ -99,17 +105,14 @@ class _FormFieldState extends State<FormFieldComponent> {
     });
     
     APIResponseCode result = await loginUser(username, password);
-    switch (result) {
-      case APIResponseCode.ok:
-        logger.i("Successfully login!");
-        AppState.pageState.value = PageStateType.deviceList;
-        WebSocketHandler.initialize();
-        break;
-      case APIResponseCode.unauthorized:
-        showErrorMessage("Username or password is wrong. :(");
-        break;
-      default:
-        break;
+
+    if (result == APIResponseCode.ok) {
+      //? If Successfully login
+      AppStorage.saveString("logged_in", "1");
+      onSuccessLogin();
+    }
+    else if (result == APIResponseCode.unauthorized){
+      showErrorMessage("Username or password is wrong. :(");
     }
 
     setState(() {
@@ -119,6 +122,18 @@ class _FormFieldState extends State<FormFieldComponent> {
 
   void handleRegister() {
     AppState.pageState.value = PageStateType.emailRegistration;
+  }
+
+
+  @override
+  void initState() {
+    super.initState();
+
+    AppStorage.getString("logged_in").then((value) {
+      if(value != null) {
+        onSuccessLogin();
+      }
+    });
   }
 
   @override
@@ -222,7 +237,7 @@ class _FormFieldState extends State<FormFieldComponent> {
                   disabledBackgroundColor: Colors.black,
                   disabledForegroundColor: Colors.white,
                 ),
-                onPressed: loginProcess ? null : handleLogin,
+                onPressed: loginProcess ? null : onLoginTrigger,
                 child: const Text("Login to Dashboard")
               ),
             ),

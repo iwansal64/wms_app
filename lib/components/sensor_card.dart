@@ -61,9 +61,9 @@ class SensorValue extends StatefulWidget {
 class _SensorValueState extends State<SensorValue> {
   @override
   Widget build(BuildContext context) {
-    if (AppState.sensorsState.containsKey(widget.sensorId)) {
+    if (AppState.allWaterFlowsState.containsKey(widget.sensorId)) {
       return ValueListenableBuilder(
-        valueListenable: AppState.sensorsState[widget.sensorId]!, 
+        valueListenable: AppState.allWaterFlowsState[widget.sensorId]!, 
         builder: (context, value, _) {
           return Text(
             value.toString(),

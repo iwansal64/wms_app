@@ -1,7 +1,9 @@
 
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
+import 'package:wms_app/state.dart';
 import 'dart:convert';
 import 'dart:async';
 
@@ -225,8 +227,18 @@ Future<GetDeviceReturnType> getDevices() async {
       }
 
       for(Map<String, dynamic> device in data["devices"]) {
-        devicesData.add(Device.fromJson(device));
+        Device deviceData = Device.fromJson(device);
+        devicesData.add(deviceData);
+
+        //? Update the app state that related to devices
+        AppState.allWaterFlowsState.value.addAll({ deviceData.id: [] });
+        AppState.averageWaterFlowState.value.addAll({ deviceData.id: 0 });
+        AppState.waterLeakageState.value.addAll({ deviceData.id: Uint8List(1) });
       }
+
+      AppState.devicesState.value = devicesData;
+
+      
 
       return DevicesData(devicesData);
     default:
