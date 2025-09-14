@@ -27,7 +27,7 @@ class LoginPage extends StatelessWidget {
                 decoration: BoxDecoration(
                   border: Border.all(width: 2, color: Colors.black),
                   borderRadius: BorderRadius.circular(20),
-                  color: Colors.white,
+                  color: Color.fromARGB(100, 255, 255, 255),
                 ),
                 child: Padding(
                   padding: EdgeInsets.all(40),

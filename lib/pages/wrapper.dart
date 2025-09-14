@@ -3,7 +3,7 @@ import 'package:wms_app/pages/device_list.dart';
 import 'package:wms_app/pages/login.dart';
 import 'package:wms_app/pages/monitor.dart';
 import 'package:wms_app/pages/page_not_found.dart';
-import 'package:wms_app/pages/registeration/create_user.dart';
+import 'package:wms_app/pages/registeration/user_registration.dart';
 import 'package:wms_app/pages/registeration/email_registeration.dart';
 import 'package:wms_app/pages/registeration/email_verification.dart';
 import 'package:wms_app/state.dart';
@@ -31,7 +31,7 @@ class _WrapperState extends State<WrapperPage> {
           case PageStateType.emailVerification:
             return EmailVerificationPage();
           case PageStateType.createUser:
-            return CreateUserPage();
+            return UserRegistrationPage();
           case PageStateType.deviceList:
             return DeviceListPage();
           case PageStateType.monitor:

@@ -24,7 +24,7 @@ class DeviceListPage extends StatelessWidget {
               child: Container(
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Color.fromARGB(100, 255, 255, 255),
                   border: Border.all(color: Colors.black, width: 2),
                   borderRadius: BorderRadius.circular(15)
                 ),
