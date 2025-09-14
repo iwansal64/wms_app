@@ -35,7 +35,22 @@ void handleData(dynamic rawData) {
 
     //? Average water flow data updates
     else if(message.startsWith("aflow=")) {
+      final List<String> data = message.split("aflow=").last.split(",");
+      final String deviceId = data.first;
+      
+      // Verify device ID
+      if(!AppState.devicesState.value.any((deviceData) => deviceData.id == deviceId)) return;
+      
+      final double? averageWaterFlow = double.tryParse(data.last);
 
+      // Verify average water flow
+      if(averageWaterFlow == null) return;
+
+      // Save it to the app state
+      AppState.averageWaterFlowState.value = {
+        ...AppState.averageWaterFlowState.value,
+        deviceId: averageWaterFlow
+      };
     }
   }
 }
