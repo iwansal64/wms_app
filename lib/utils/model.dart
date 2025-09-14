@@ -1,5 +1,3 @@
-import 'package:wms_app/utils/util.dart';
-
 class User {
   final String? id;
   final String? username;
@@ -40,6 +38,31 @@ class Device {
       deviceName: data["device_name"] ?? "",
       createdAt: createdAt,
       description: data["description"] ?? "",
+      isValid: isValid
+    );
+  }
+}
+
+class Sensor {
+  final bool isValid;
+  
+  final String id;
+  final String deviceId;
+
+  int sensorValue = 0;
+
+  Sensor({ required this.id, required this.deviceId, required this.isValid });
+  
+  factory Sensor.fromJson(Map<String, dynamic> data) {
+    bool isValid = true;
+
+    if(!data.containsKey("id") || !data.containsKey("device_id"))  {
+      isValid = false;
+    }
+
+    return Sensor(
+      id: data["id"] ?? "",
+      deviceId: data["device_id"] ?? "",
       isValid: isValid
     );
   }

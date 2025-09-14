@@ -1,0 +1,252 @@
+import 'package:flutter/material.dart';
+import 'package:wms_app/state.dart';
+import 'package:wms_app/utils/types.dart';
+
+class MonitorPage extends StatelessWidget {
+  const MonitorPage({ super.key });
+  
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 0, 58, 112)
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(10),
+        child: Column(
+          spacing: 5,
+          children: [
+            // Basic Statistics Info
+            WaterLeakageState(),
+            WaterFlowState(),
+            // Sensor List Page Button
+            SensorButton(),
+            Spacer(),
+            BackToDashboard(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+//? SENSOR PAGE BUTTON
+class SensorButton extends StatelessWidget {
+  const SensorButton({ super.key });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        // Go to sensor list page
+        AppState.pageState.value = PageStateType.sensorList;
+      },
+      child: SizedBox(
+        height: 200,
+        child: Container(
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: Color.fromARGB(100, 255, 255, 255),
+            border: Border.all(width: 2),
+            borderRadius: BorderRadius.circular(15)
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(10),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  spacing: 4,
+                  children: [
+                    const Text(
+                      "Sensor",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 28,
+                        fontWeight: FontWeight.w700,
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
+                    Icon(
+                      Icons.north_east,
+                      size: 20,
+                      color: Colors.black,
+                    )
+                  ],
+                ),
+                const Text(
+                  "Monitor sensor values here!",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w400,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+//? STATISTICS SECTION
+class WaterLeakageState extends StatelessWidget {
+  const WaterLeakageState({ super.key });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container( 
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: Color.fromARGB(100, 255, 255, 255),
+        border: Border.all(width: 2),
+        borderRadius: BorderRadius.circular(15)
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(10),
+        child: Column(
+          children: [
+            const Text(
+              "Water Leakage Status",
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.black,
+                decoration: TextDecoration.none,
+                fontWeight: FontWeight.w400
+              ),
+            ),
+            ValueListenableBuilder(
+              valueListenable: AppState.waterLeakageState,
+              builder: (context, waterLeaked, _) {
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  spacing: 5,
+                  children: [
+                    Text(
+                      waterLeaked ? "Leak Detected !" : "Stable",
+                      style: TextStyle(
+                        fontSize: 24,
+                        color: waterLeaked ? const Color.fromARGB(255, 126, 0, 0) : const Color.fromARGB(255, 0, 50, 136),
+                        decoration: TextDecoration.none,
+                        fontWeight: FontWeight.w500
+                      ),
+                    ),
+                    Icon(
+                      waterLeaked ? Icons.warning : Icons.circle_outlined,
+                      color: waterLeaked ? const Color.fromARGB(255, 126, 0, 0) : const Color.fromARGB(255, 0, 50, 136),
+                      size: 16,
+                    )
+                  ],
+                );
+              }
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class WaterFlowState extends StatelessWidget {
+  const WaterFlowState({ super.key });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container( 
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: Color.fromARGB(100, 255, 255, 255),
+        border: Border.all(width: 2),
+        borderRadius: BorderRadius.circular(15)
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(10),
+        child: Column(
+          children: [
+            const Text(
+              "Average Water Flow",
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.black,
+                decoration: TextDecoration.none,
+                fontWeight: FontWeight.w400
+              ),
+            ),
+            ValueListenableBuilder(
+              valueListenable: AppState.averageWaterFlow,
+              builder: (context, waterFlow, _) {
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  spacing: 5,
+                  children: [
+                    Text(
+                      "$waterFlow",
+                      style: TextStyle(
+                        fontSize: 28,
+                        color: Colors.black,
+                        decoration: TextDecoration.none,
+                        fontWeight: FontWeight.w500
+                      ),
+                    ),
+                    const Text(
+                      "liter/s",
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black,
+                        decoration: TextDecoration.none,
+                        fontWeight: FontWeight.w400
+                      ),
+                    )
+                  ],
+                );
+              }
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class BackToDashboard extends StatelessWidget {
+  const BackToDashboard({ super.key });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        AppState.pageState.value = PageStateType.deviceList;
+      },
+      child: Container( 
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: Color.fromARGB(100, 255, 255, 255),
+          border: Border.all(width: 2),
+          borderRadius: BorderRadius.circular(15)
+        ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+          child: Center(
+            child: const Text(
+              "Back",
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 26,
+                decoration: TextDecoration.none,
+                fontWeight: FontWeight.w500
+              ),
+            )
+          ),
+        ),
+      ),
+    );
+  }
+}

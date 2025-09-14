@@ -4,5 +4,6 @@ enum PageStateType {
   emailVerification,
   createUser,
   deviceList,
-  monitor
+  monitor,
+  sensorList
 }

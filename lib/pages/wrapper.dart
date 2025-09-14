@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wms_app/pages/device_list.dart';
 import 'package:wms_app/pages/login.dart';
+import 'package:wms_app/pages/monitor.dart';
 import 'package:wms_app/pages/page_not_found.dart';
 import 'package:wms_app/pages/registeration/create_user.dart';
 import 'package:wms_app/pages/registeration/email_registeration.dart';
@@ -33,6 +34,9 @@ class _WrapperState extends State<WrapperPage> {
             return CreateUserPage();
           case PageStateType.deviceList:
             return DeviceListPage();
+          case PageStateType.monitor:
+            return MonitorPage();
+          // ignore: unreachable_switch_default
           default:
             return NotFoundPage();
         }
