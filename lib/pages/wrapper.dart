@@ -8,6 +8,7 @@ import 'package:wms_app/pages/registeration/email_registeration.dart';
 import 'package:wms_app/pages/registeration/email_verification.dart';
 import 'package:wms_app/state.dart';
 import 'package:wms_app/utils/types.dart';
+import 'package:wms_app/utils/websocket_handler.dart';
 
 class WrapperPage extends StatefulWidget {
   const WrapperPage({ super.key });  
@@ -17,6 +18,13 @@ class WrapperPage extends StatefulWidget {
 }
 
 class _WrapperState extends State<WrapperPage> {
+
+  @override
+  void dispose() {
+    WebSocketHandler.close().whenComplete(() {
+      super.dispose();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

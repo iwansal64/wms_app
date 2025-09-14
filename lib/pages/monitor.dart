@@ -130,17 +130,17 @@ class WaterLeakageState extends StatelessWidget {
                   spacing: 5,
                   children: [
                     Text(
-                      waterLeaked ? "Leak Detected !" : "Stable",
+                      waterLeaked[0] != 0 ? "Leak in Sensor: ${waterLeaked[0]}!" : "Stable",
                       style: TextStyle(
                         fontSize: 24,
-                        color: waterLeaked ? const Color.fromARGB(255, 126, 0, 0) : const Color.fromARGB(255, 0, 50, 136),
+                        color: waterLeaked[0] != 0 ? const Color.fromARGB(255, 126, 0, 0) : const Color.fromARGB(255, 0, 50, 136),
                         decoration: TextDecoration.none,
                         fontWeight: FontWeight.w500
                       ),
                     ),
                     Icon(
-                      waterLeaked ? Icons.warning : Icons.circle_outlined,
-                      color: waterLeaked ? const Color.fromARGB(255, 126, 0, 0) : const Color.fromARGB(255, 0, 50, 136),
+                      waterLeaked[0] != 0 ? Icons.warning : Icons.circle_outlined,
+                      color: waterLeaked[0] != 0 ? const Color.fromARGB(255, 126, 0, 0) : const Color.fromARGB(255, 0, 50, 136),
                       size: 16,
                     )
                   ],

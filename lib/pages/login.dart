@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:wms_app/state.dart';
 import 'package:wms_app/utils/api.dart';
 import 'package:wms_app/utils/types.dart';
+import 'package:wms_app/utils/websocket_handler.dart';
 
 
 class LoginPage extends StatelessWidget {
@@ -102,6 +103,7 @@ class _FormFieldState extends State<FormFieldComponent> {
       case APIResponseCode.ok:
         logger.i("Successfully login!");
         AppState.pageState.value = PageStateType.deviceList;
+        WebSocketHandler.initialize();
         break;
       case APIResponseCode.unauthorized:
         showErrorMessage("Username or password is wrong. :(");
