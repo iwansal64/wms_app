@@ -39,6 +39,7 @@ dependencies:
   shared_preferences: ^2.5.3
   intl: ^0.20.2
   web_socket_channel: ^3.0.3
+  flutter_blue_plus: ^1.36.6
 
 dev_dependencies:
   flutter_test:
@@ -109,4 +110,4 @@ flutter:
         - asset: assets/fonts/Saira/Saira-SemiBold.ttf
         - asset: assets/fonts/Saira/Saira-SemiBoldItalic.ttf
         - asset: assets/fonts/Saira/Saira-ThinItalic.ttf
-          weight: 300
+          weight: 200

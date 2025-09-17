@@ -3,7 +3,7 @@ import 'package:wms_app/utils/api.dart';
 
 class AppStorage {
   static Future<void> saveString(String key, String value) async {
-    logger.d("Saving $key into storage");
+    logger.i("[API] Saving $key into storage");
     final prefs = await SharedPreferences.getInstance();
     if(value.isEmpty) {
       await prefs.remove(key);

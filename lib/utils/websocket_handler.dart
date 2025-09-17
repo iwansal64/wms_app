@@ -5,7 +5,7 @@ import 'package:wms_app/state.dart';
 import 'package:wms_app/utils/storage_handler.dart';
 import 'package:wms_app/utils/api.dart';
 
-final String webSocketUrl = "ws://192.168.1.9:8040";
+final String webSocketUrl = "ws://192.168.23.175:8040";
 
 
 void handleData(dynamic rawData) {
@@ -26,7 +26,7 @@ void handleData(dynamic rawData) {
       if(leakValue == null) return;
 
       // Save it to the app state      
-      logger.d("Changes in water leakage status!");
+      logger.d("[Web Socket] Changes in water leakage status!");
       AppState.waterLeakageState.value = {
         ...AppState.waterLeakageState.value,
         deviceId: Uint8List.fromList([leakValue])
@@ -47,10 +47,32 @@ void handleData(dynamic rawData) {
       if(averageWaterFlow == null) return;
 
       // Save it to the app state
+      logger.d("[Web Socket] Changes in water flow value!");
       AppState.averageWaterFlowState.value = {
         ...AppState.averageWaterFlowState.value,
         deviceId: averageWaterFlow
       };
+    }
+
+    //? Device status updates
+    else if(message.startsWith("status=")) {
+      final List<String> data = message.split("status=").last.split(",");
+      final String deviceId = data.first;
+      
+      // Verify device ID
+      if(!AppState.devicesState.value.any((deviceData) => deviceData.id == deviceId)) return;
+      
+      final int? deviceStatus = int.tryParse(data.last);
+
+      // Verify average water flow
+      if(deviceStatus == null) return;
+
+      // Save it to the app state
+      logger.d("[Web Socket] Changes in device state!");
+      AppState.devicesState.value = AppState.devicesState.value.map((device) {
+        if(device.id != deviceId) return device;
+        return device.copyWith(status: deviceStatus == 1 ? true : false);
+      }).toList();
     }
   }
 }

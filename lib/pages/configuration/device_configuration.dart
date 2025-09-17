@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:wms_app/state.dart';
 import 'package:wms_app/utils/api.dart';
-import 'package:wms_app/utils/storage_handler.dart';
+import 'package:wms_app/utils/ble.dart';
 import 'package:wms_app/utils/types.dart';
 import 'package:wms_app/utils/websocket_handler.dart';
 
 
-class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
+class DeviceConfigurationPage extends StatelessWidget {
+  const DeviceConfigurationPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -41,11 +42,11 @@ class LoginPage extends StatelessWidget {
                         child: Column(
                           children: [
                             const Text(
-                              "LOGIN",
+                              "Configuration",
                               style: TextStyle(fontSize: 32, fontWeight: FontWeight.w400),
                             ),
                             const Text(
-                              "Login to an existing email account",
+                              "Configure your device",
                               textAlign: TextAlign.center,
                               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
                             )
@@ -53,7 +54,7 @@ class LoginPage extends StatelessWidget {
                         ),
                       ),
                       Expanded(
-                        child: FormFieldComponent()
+                        child: ConfigurationForm()
                       )
                     ],
                   ),
@@ -67,73 +68,109 @@ class LoginPage extends StatelessWidget {
   }
 }
 
-class FormFieldComponent extends StatefulWidget  {
-  const FormFieldComponent({super.key});
+class ConfigurationForm extends StatefulWidget  {
+  const ConfigurationForm({super.key});
 
   @override
-  State<StatefulWidget> createState() => _FormFieldState();
+  State<StatefulWidget> createState() => _ConfigurationFormState();
 }
 
-class _FormFieldState extends State<FormFieldComponent> {
-  String username = "";
-  String password = "";
+class _ConfigurationFormState extends State<ConfigurationForm> {
+  String wifiSSID = "";
+  String wifiPASS = "";
 
   String errorMessage = "";
-  bool loginProcess = false;
+  bool isError = false;
+  
+  bool saveProcess = false;
 
   void showErrorMessage(String message) {
     setState(() {
+      isError = true;
+      errorMessage = message;
+    });
+  }
+
+  void showInfoMessage(String message) {
+    setState(() {
+      isError = false;
       errorMessage = message;
     });
   }
   
 
-  void onSuccessLogin() {
-    WebSocketHandler.initialize();
+  void onSuccessfulSave() {
+    showInfoMessage("Successfully saved!");
+  }
+
+  void onErrorSave() {
+    showInfoMessage("There's error when saving..");
+  }
+  
+  
+  void onSaveTrigger() async {
+    logger.i("SAVING...");
+    
+    setState(() {
+      saveProcess = true;
+    });
+    
+    if(wifiSSID.isNotEmpty) {
+      await BLE.setSsid(wifiSSID);
+    }
+
+    if(wifiPASS.isNotEmpty) {
+      await BLE.setPass(wifiPASS);
+    }
+
+    bool success = false;
+    
+    for (var i = 0; i < 4; i++) {
+      String result = await BLE.getLog();
+      if(result.isNotEmpty) {
+        success = true;
+        break;
+      }
+
+      await Future.delayed(Duration(seconds: 1));
+    }
+    
+    if(success) {
+      onSuccessfulSave();
+    }
+    else {
+      onErrorSave();
+    }
+
+    setState(() {
+      saveProcess = false;
+    });
+  }
+
+  void onBackTrigger() async {
+    if(AppState.configurationDevice.value != null) {
+      if(await AppState.configurationDevice.value?.bondState.first == BluetoothBondState.bonded) {
+        await AppState.configurationDevice.value?.disconnect();
+      }
+      
+      AppState.configurationDevice.value = null;
+      AppState.wifiLogCharacteristic.value = null;
+      AppState.wifiPassCharacteristic.value = null;
+      AppState.wifiSsidCharacteristic.value = null;
+    }
     AppState.pageState.value = PageStateType.dashboard;
   }
-  
-  
-  void onLoginTrigger() async {
-    if(username.isEmpty || password.isEmpty) {
-      showErrorMessage("Please fill the username and password! >:(");
-      return;
-    }
-    
-    setState(() {
-      loginProcess = true;
-    });
-    
-    APIResponseCode result = await loginUser(username, password);
-
-    if (result == APIResponseCode.ok) {
-      //? If Successfully login
-      AppStorage.saveString("logged_in", "1");
-      onSuccessLogin();
-    }
-    else if (result == APIResponseCode.unauthorized){
-      showErrorMessage("Username or password is wrong. :(");
-    }
-
-    setState(() {
-      loginProcess = false;
-    });
-  }
-
-  void handleRegister() {
-    AppState.pageState.value = PageStateType.emailRegistration;
-  }
-
 
   @override
-  void initState() {
-    super.initState();
-
-    AppStorage.getString("logged_in").then((value) {
-      if(value != null) {
-        onSuccessLogin();
-      }
-    });
+  void dispose() {
+    if(AppState.configurationDevice.value != null) {
+      AppState.configurationDevice.value?.disconnect().whenComplete(() {
+        super.dispose();
+      });
+    }
+    else {
+      super.dispose();
+    }
   }
 
   @override
@@ -141,20 +178,20 @@ class _FormFieldState extends State<FormFieldComponent> {
     return Column(
       spacing: 10,
       children: [
-        //? Text Field for Username
+        //? Text Field for WiFi SSID
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
               padding: EdgeInsets.only(left: 15, bottom: 5),
               child: const Text(
-                "Username",
+                "WiFi SSID",
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               )
             ),
             TextField(
               decoration: InputDecoration(
-                hintText: "You remember your username, right?",
+                hintText: "Your WiFi name",
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
                   borderSide: BorderSide(color: Colors.grey),
@@ -170,28 +207,28 @@ class _FormFieldState extends State<FormFieldComponent> {
               ),
               onChanged: (value) {
                 setState(() {
-                  username = value;
+                  wifiSSID = value;
                   errorMessage = "";
                 });
               },
             )
           ],
         ),
-        //? Text Field for Password
+        //? Text Field for WiFi Password
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
               padding: EdgeInsets.only(left: 15, bottom: 5),
               child: const Text(
-                "Password",
+                "WiFi Password",
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               )
             ),
             TextField(
               obscureText: true,
               decoration: InputDecoration(
-                hintText: "Password or hack this app >:)",
+                hintText: "Password for your WiFi",
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
                   borderSide: BorderSide(color: Colors.grey),
@@ -207,7 +244,7 @@ class _FormFieldState extends State<FormFieldComponent> {
               ),
               onChanged: (value) {
                 setState(() {
-                  password = value;
+                  wifiPASS = value;
                   errorMessage = "";
                 });
               },
@@ -218,7 +255,7 @@ class _FormFieldState extends State<FormFieldComponent> {
           errorMessage,
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: Colors.red
+            color: isError ? Colors.red : Colors.white
           )
         ),
         Spacer(),
@@ -226,9 +263,9 @@ class _FormFieldState extends State<FormFieldComponent> {
           mainAxisAlignment: MainAxisAlignment.center,
           spacing: 15,
           children: [
-            //? Login Button
+            //? Save Button
             Opacity(
-              opacity: loginProcess ? 0.2 : 1,
+              opacity: saveProcess ? 0.2 : 1,
               child: OutlinedButton(
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 14),
@@ -237,21 +274,22 @@ class _FormFieldState extends State<FormFieldComponent> {
                   disabledBackgroundColor: Colors.black,
                   disabledForegroundColor: Colors.white,
                 ),
-                onPressed: loginProcess ? null : onLoginTrigger,
-                child: const Text("Login to Dashboard")
+                onPressed: saveProcess ? null : onSaveTrigger,
+                child: const Text("Save")
               ),
             ),
-            //? Signup Button
+            //? Back Button
             OutlinedButton(
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 14),
               ),
-              onPressed: handleRegister,
-              child: const Text("Registeration")
+              onPressed: onBackTrigger,
+              child: const Text("Back")
             ),
           ],
         )
       ],
     );
   }
+  
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:wms_app/utils/model.dart';
 import 'package:wms_app/utils/types.dart';
 
@@ -20,4 +21,16 @@ class AppState {
   
   //? Telling us the current device id, that user choose
   static ValueNotifier<List<Device>> devicesState = ValueNotifier([]);
+
+  //? Telling us the current bluetooth characteristic for WiFi SSID
+  static ValueNotifier<BluetoothDevice?> configurationDevice = ValueNotifier(null);
+
+  //? Telling us the current bluetooth characteristic for WiFi SSID
+  static ValueNotifier<BluetoothCharacteristic?> wifiSsidCharacteristic = ValueNotifier(null);
+
+  //? Telling us the current bluetooth characteristic for WiFi PASS
+  static ValueNotifier<BluetoothCharacteristic?> wifiPassCharacteristic = ValueNotifier(null);
+
+  //? Telling us the current bluetooth characteristic for WiFi LOG
+  static ValueNotifier<BluetoothCharacteristic?> wifiLogCharacteristic = ValueNotifier(null);
 }

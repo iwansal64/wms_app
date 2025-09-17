@@ -1,8 +1,8 @@
 
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
+import 'package:wms_app/env/env.dart';
 import 'package:wms_app/state.dart';
 import 'dart:convert';
 import 'dart:async';
@@ -11,7 +11,6 @@ import 'package:wms_app/utils/cookies_handler.dart';
 import 'package:wms_app/utils/model.dart';
 import 'package:wms_app/utils/storage_handler.dart';
 
-final String apiAddress = "http://192.168.1.9:8080";
 
 final logger = Logger();
 
@@ -45,9 +44,9 @@ Future<APIReturnType> get(String endpoint) async {
 
     String? newCookies = response.headers["set-cookie"];
     if(newCookies != null) {
-      logger.i("Saving Cookies");
+      logger.i("[API] Saving Cookies");
       await saveCookies(newCookies);
-      logger.i("Cookies Saved");
+      logger.i("[API] Cookies Saved");
     }
 
     return APIResponse(response);
@@ -75,9 +74,9 @@ Future<APIReturnType> post(String endpoint, String body) async {
 
     String? newCookies = response.headers["set-cookie"];
     if(newCookies != null) {
-      logger.i("Saving Cookies");
+      logger.i("[API] Saving Cookies");
       await saveCookies(newCookies);
-      logger.i("Cookies Saved");
+      logger.i("[API] Cookies Saved");
     }
 
     return APIResponse(response);
@@ -123,7 +122,7 @@ APIResponseCode returnTypeToResponseCode(APIReturnType result) {
         return APIResponseCode.conflict;
       }
 
-      logger.d("Server Error: ${response.statusCode}");
+      logger.i("[API] Server Error: ${response.statusCode}");
       return APIResponseCode.serverError;
     case APIError(:var errorMessage):
       logger.e(errorMessage);
@@ -141,7 +140,7 @@ APIResponseCode returnTypeToResponseCode(APIReturnType result) {
 
 //? Login User
 Future<APIResponseCode> loginUser(String username, String password) async {
-  logger.i("Sending login request..");
+  logger.i("[API] Sending login request..");
   APIReturnType result = await post(
     "/user/login",
     jsonEncode(
@@ -157,7 +156,7 @@ Future<APIResponseCode> loginUser(String username, String password) async {
 
 //? Register Email
 Future<APIResponseCode> registerEmail(String email) async {
-  logger.i("Sending register request for this email $email");
+  logger.i("[API] Sending register request for this email $email");
   APIReturnType result = await post(
     "/user/register/1",
     jsonEncode(
@@ -172,7 +171,7 @@ Future<APIResponseCode> registerEmail(String email) async {
 
 //? Verify Token for Email Verification
 Future<APIResponseCode> verifyEmail(String token) async {
-  logger.i("Sending verification request");
+  logger.i("[API] Sending verification request");
   APIReturnType result = await post(
     "/user/register/2",
     jsonEncode(
@@ -187,7 +186,7 @@ Future<APIResponseCode> verifyEmail(String token) async {
 
 //? Create User
 Future<APIResponseCode> createUser(String username, String password) async {
-  logger.i("Sending create user request");
+  logger.i("[API] Sending create user request");
   APIReturnType result = await post(
     "/user/register/3",
     jsonEncode(
@@ -215,7 +214,7 @@ class NoDeviceData extends GetDeviceReturnType {
 }
 
 Future<GetDeviceReturnType> getDevices() async {
-  logger.i("Getting device data");
+  logger.i("[API] Getting device data");
   APIReturnType response = await get("/device");
   switch(response) {
     case APIResponse(:var response):
@@ -229,11 +228,6 @@ Future<GetDeviceReturnType> getDevices() async {
       for(Map<String, dynamic> device in data["devices"]) {
         Device deviceData = Device.fromJson(device);
         devicesData.add(deviceData);
-
-        //? Update the app state that related to devices
-        AppState.allWaterFlowsState.value.addAll({ deviceData.id: [] });
-        AppState.averageWaterFlowState.value.addAll({ deviceData.id: 0 });
-        AppState.waterLeakageState.value.addAll({ deviceData.id: Uint8List(1) });
       }
 
       AppState.devicesState.value = devicesData;

@@ -2,7 +2,6 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:wms_app/state.dart';
-import 'package:wms_app/utils/api.dart';
 import 'package:wms_app/utils/types.dart';
 
 class MonitorPage extends StatelessWidget {
@@ -43,7 +42,7 @@ class SensorButton extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         // Go to sensor list page
-        AppState.pageState.value = PageStateType.sensorList;
+        AppState.pageState.value = PageStateType.deviceScanList;
       },
       child: SizedBox(
         height: 200,
@@ -125,7 +124,8 @@ class _WaterLeakageDataState extends State<WaterLeakageData> {
   @override
   void initState() {
     super.initState();
-
+    
+    updateWaterLeaked();
     AppState.waterLeakageState.addListener(updateWaterLeaked);
   }
 
@@ -210,6 +210,8 @@ class _WaterFlowDataState extends State<WaterFlowData> {
 
   @override void initState() {
     super.initState();
+
+    updateWaterFlow();
     AppState.averageWaterFlowState.addListener(updateWaterFlow);
   }
   

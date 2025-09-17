@@ -102,7 +102,6 @@ class _FormFieldState extends State<FormFieldComponent> {
     APIResponseCode result = await registerEmail(email);
     switch (result) {
       case APIResponseCode.ok:
-        logger.i("Successfully sent the email!");
         AppState.pageState.value = PageStateType.emailVerification;
         break;
       case APIResponseCode.conflict:

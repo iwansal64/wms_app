@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:wms_app/default_styles.dart' as default_styles;
-import 'package:wms_app/state.dart';
 
 class SensorCard extends StatelessWidget {
   final String sensorNumber;
@@ -61,17 +60,7 @@ class SensorValue extends StatefulWidget {
 class _SensorValueState extends State<SensorValue> {
   @override
   Widget build(BuildContext context) {
-    if (AppState.allWaterFlowsState.containsKey(widget.sensorId)) {
-      return ValueListenableBuilder(
-        valueListenable: AppState.allWaterFlowsState[widget.sensorId]!, 
-        builder: (context, value, _) {
-          return Text(
-            value.toString(),
-            style: default_styles.sensorValueStyle,
-          );
-        }
-      );
-    }
+    
     return Text(
       "--",
       style: default_styles.sensorValueStyle,

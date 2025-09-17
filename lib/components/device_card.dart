@@ -7,8 +7,9 @@ class DeviceCard extends StatelessWidget {
   final String createdAt;
   final String deviceId;
   final String description;
+  final bool status;
   
-  const DeviceCard({ super.key, required this.deviceName, required this.createdAt, required this.deviceId, required this.description });
+  const DeviceCard({ super.key, required this.deviceName, required this.createdAt, required this.deviceId, required this.description, required this.status });
 
   void chooseDevice() async {
     AppState.deviceIdState.value = deviceId;
@@ -50,10 +51,17 @@ class DeviceCard extends StatelessWidget {
                 Spacer(),
                 Text(
                   createdAt,
-                  textAlign: TextAlign.end,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w300
+                  ),
+                ),
+                Text(
+                  status ? "Active" : "Not Active",
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: status ? Colors.green : Colors.black
                   ),
                 )
               ],

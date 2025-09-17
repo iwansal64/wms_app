@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:wms_app/pages/configuration/device_configuration.dart';
+import 'package:wms_app/pages/configuration/device_scan.dart';
+import 'package:wms_app/pages/dashboard.dart';
 import 'package:wms_app/pages/device_list.dart';
 import 'package:wms_app/pages/login.dart';
 import 'package:wms_app/pages/monitor.dart';
@@ -28,27 +31,35 @@ class _WrapperState extends State<WrapperPage> {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: AppState.pageState, 
-      builder: (context, data, _) {
-        switch(data) {
-          case PageStateType.login:
-            return LoginPage();
-          case PageStateType.emailRegistration:
-            return EmailRegistrationPage();
-          case PageStateType.emailVerification:
-            return EmailVerificationPage();
-          case PageStateType.createUser:
-            return UserRegistrationPage();
-          case PageStateType.deviceList:
-            return DeviceListPage();
-          case PageStateType.monitor:
-            return MonitorPage();
-          // ignore: unreachable_switch_default
-          default:
-            return NotFoundPage();
+    return SafeArea(
+      child: ValueListenableBuilder(
+        valueListenable: AppState.pageState, 
+        builder: (context, data, _) {
+          switch(data) {
+            case PageStateType.login:
+              return LoginPage();
+            case PageStateType.emailRegistration:
+              return EmailRegistrationPage();
+            case PageStateType.emailVerification:
+              return EmailVerificationPage();
+            case PageStateType.createUser:
+              return UserRegistrationPage();
+            case PageStateType.deviceList:
+              return DeviceListPage();
+            case PageStateType.monitor:
+              return MonitorPage();
+            case PageStateType.deviceConfiguration:
+              return DeviceConfigurationPage();
+            case PageStateType.deviceScanList:
+              return DeviceScanPage();
+            case PageStateType.dashboard:
+              return DashboardPage();
+            // ignore: unreachable_switch_default
+            default:
+              return NotFoundPage();
+          }
         }
-      }
+      )
     );
   }
 }

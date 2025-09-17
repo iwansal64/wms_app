@@ -5,5 +5,7 @@ enum PageStateType {
   createUser,
   deviceList,
   monitor,
-  sensorList
+  deviceScanList,
+  deviceConfiguration,
+  dashboard,
 }
