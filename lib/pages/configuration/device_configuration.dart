@@ -4,7 +4,6 @@ import 'package:wms_app/state.dart';
 import 'package:wms_app/utils/api.dart';
 import 'package:wms_app/utils/ble.dart';
 import 'package:wms_app/utils/types.dart';
-import 'package:wms_app/utils/websocket_handler.dart';
 
 
 class DeviceConfigurationPage extends StatelessWidget {

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:web_socket_channel/io.dart';
 import 'package:wms_app/utils/model.dart';
 import 'package:wms_app/utils/types.dart';
 
@@ -33,4 +34,6 @@ class AppState {
 
   //? Telling us the current bluetooth characteristic for WiFi LOG
   static ValueNotifier<BluetoothCharacteristic?> wifiLogCharacteristic = ValueNotifier(null);
+
+  static ValueNotifier<IOWebSocketChannel?> webSocketState = ValueNotifier(null);
 }

@@ -40,7 +40,7 @@ Future<APIReturnType> get(String endpoint) async {
       headers: {
         "Cookie": cookie ?? ""
       }
-    ).timeout(const Duration(seconds: 10));
+    ).timeout(const Duration(seconds: 30));
 
     String? newCookies = response.headers["set-cookie"];
     if(newCookies != null) {
@@ -48,7 +48,6 @@ Future<APIReturnType> get(String endpoint) async {
       await saveCookies(newCookies);
       logger.i("[API] Cookies Saved");
     }
-
     return APIResponse(response);
   }
   catch(err) {
@@ -215,27 +214,36 @@ class NoDeviceData extends GetDeviceReturnType {
 
 Future<GetDeviceReturnType> getDevices() async {
   logger.i("[API] Getting device data");
-  APIReturnType response = await get("/device");
-  switch(response) {
+  APIReturnType result = await get("/device");
+  switch(result) {
     case APIResponse(:var response):
-      List<Device> devicesData = [];
-      final Map<String, dynamic> data = jsonDecode(response.body);
-      if(!data.containsKey("devices")) {
-        logger.e("The returned value from server doesn't contains devices key");
-        return NoDeviceData(APIResponseCode.serverError);
+      if(response.statusCode == 200) {
+        List<Device> devicesData = [];
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        if(!data.containsKey("devices")) {
+          logger.e("The returned value from server doesn't contains devices key");
+          return NoDeviceData(APIResponseCode.serverError);
+        }
+
+        for(Map<String, dynamic> device in data["devices"]) {
+          Device deviceData = Device.fromJson(device);
+          devicesData.add(deviceData);
+        }
+
+        AppState.devicesState.value = devicesData;
+
+        
+
+        return DevicesData(devicesData);
       }
-
-      for(Map<String, dynamic> device in data["devices"]) {
-        Device deviceData = Device.fromJson(device);
-        devicesData.add(deviceData);
+      else {
+        return NoDeviceData(returnTypeToResponseCode(result));
       }
-
-      AppState.devicesState.value = devicesData;
-
-      
-
-      return DevicesData(devicesData);
     default:
-      return NoDeviceData(returnTypeToResponseCode(response));
+      return NoDeviceData(returnTypeToResponseCode(result));
   }
+}
+
+Future<void> logout() async {
+  await removeLoginCookie();
 }

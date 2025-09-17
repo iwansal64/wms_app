@@ -14,7 +14,7 @@ class MonitorPage extends StatelessWidget {
         color: const Color.fromARGB(255, 0, 58, 112)
       ),
       child: Padding(
-        padding: EdgeInsets.all(10),
+        padding: EdgeInsets.all(15),
         child: Column(
           spacing: 5,
           children: [
@@ -145,7 +145,7 @@ class _WaterLeakageDataState extends State<WaterLeakageData> {
         borderRadius: BorderRadius.circular(15)
       ),
       child: Padding(
-        padding: EdgeInsets.all(10),
+        padding: EdgeInsets.all(15),
         child: Column(
           children: [
             const Text(

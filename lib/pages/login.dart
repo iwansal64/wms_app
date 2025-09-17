@@ -88,8 +88,17 @@ class _FormFieldState extends State<FormFieldComponent> {
   }
   
 
-  void onSuccessLogin() {
-    WebSocketHandler.initialize();
+  void onSuccessLogin() async {
+    await WebSocketHandler.initialize();
+    GetDeviceReturnType result = await getDevices();
+
+    switch (result) {
+      case DevicesData():
+        break;
+      case NoDeviceData(:var responseCode):
+        logger.e("There's an error. Error: $responseCode");
+    }
+
     AppState.pageState.value = PageStateType.dashboard;
   }
   

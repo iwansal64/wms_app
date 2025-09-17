@@ -22,46 +22,40 @@ class DeviceListPage extends StatelessWidget {
         ),
         child: Center(
           child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 40, horizontal: 35),
+            padding: EdgeInsets.symmetric(vertical: 20, horizontal: 15),
             child: Column(
               spacing: 15,
               children: [
-                Expanded(
-                  child: Container(
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: Color.fromARGB(100, 255, 255, 255),
-                      border: Border.all(color: Colors.black, width: 2),
-                      borderRadius: BorderRadius.circular(15)
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 0, vertical: 20),
-                      child: Column(
-                        children: [
-                          //? Title
-                          const Text(
-                            "Available Devices",
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 28,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-
-                          //? Device List
-                          Expanded(
-                            child: DeviceList()
-                          ),
-                        ],
+                //? Title
+                Container(
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(width: 2),
+                    borderRadius: BorderRadius.circular(15)
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 15),
+                    child: const Text(
+                      "Available Devices",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 28,
+                        fontWeight: FontWeight.w400,
                       ),
-                    ),
+                    )
                   ),
                 ),
+                //? Device List
+                Expanded(
+                  child: DeviceList(),
+                ),
+                //? Back to Homepage
                 GestureDetector(
                   onTap: onBackTrigger,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Color.fromARGB(100, 255, 255, 255),
+                      color: Colors.white,
                       border: Border.all(width: 2),
                       borderRadius: BorderRadius.circular(15)
                     ),
@@ -73,7 +67,7 @@ class DeviceListPage extends StatelessWidget {
                           style: TextStyle(
                             color: Colors.black,
                             fontSize: 20,
-                            fontWeight: FontWeight.w400,
+                            fontWeight: FontWeight.w600,
                           ),
                       ),
                     ),
@@ -97,7 +91,6 @@ class DeviceList extends StatefulWidget {
 
 class _DeviceListState extends State<DeviceList> {
   List<Device> deviceList = []; //? Used to store devices data
-  bool isDevicesFetched = false; //? Used to check if currently waiting for device data or not
 
   void updateDeviceList() {
     setState(() {
@@ -109,19 +102,22 @@ class _DeviceListState extends State<DeviceList> {
   void initState() {
     super.initState();
 
+    updateDeviceList();
     AppState.devicesState.addListener(updateDeviceList);
     
     getDevices().then((result) {
-      switch (result) {
-        case DevicesData():
+      switch(result) {
+        case NoDeviceData(:var responseCode): {
+          switch(responseCode) {
+            case APIResponseCode.unauthorized:
+              AppState.pageState.value = PageStateType.login;
+            default:
+              break;
+          }
+        }
+        default:
           break;
-        case NoDeviceData(:var responseCode):
-          logger.e("There's an error. Error: $responseCode");
       }
-      
-      setState(() {
-        isDevicesFetched = true;
-      });
     });
   }
 
@@ -134,6 +130,11 @@ class _DeviceListState extends State<DeviceList> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(100, 255, 255, 255),
+        border: Border.all(width: 2),
+        borderRadius: BorderRadius.circular(15),
+      ),
       alignment: Alignment.topCenter,
       child: SingleChildScrollView(
         scrollDirection: Axis.vertical,
@@ -143,9 +144,7 @@ class _DeviceListState extends State<DeviceList> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             spacing: 30,
-            children: (
-              isDevicesFetched ? 
-              deviceList
+            children: deviceList
               .where((deviceData) => deviceData.isValid)
               .map((deviceData) => DeviceCard(
                 deviceName: deviceData.deviceName, 
@@ -154,10 +153,7 @@ class _DeviceListState extends State<DeviceList> {
                 description: deviceData.description,
                 status: deviceData.status,
               ))
-              .toList()
-              :
-              List.filled(3, DeviceCardDummy())
-            ),
+              .toList(),
           ),
         ),
       ),

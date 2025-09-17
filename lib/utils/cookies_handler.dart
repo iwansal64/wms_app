@@ -67,3 +67,16 @@ Future<void> saveCookies(String cookies) async {
   String result = unmapCookies(storedCookies);
   await AppStorage.saveString("cookies", result);
 }
+
+//? SAVE COOKIES
+Future<void> removeLoginCookie() async {
+  // Get the current cookies
+  Map<String, Map<String, String>> cookies = await loadCookies() ?? {};
+  if(!cookies.containsKey("access_token")) return;
+
+  // Remove the token
+  cookies.remove("access_token");
+
+  // Save back the cookies
+  saveCookies(unmapCookies(cookies));
+}

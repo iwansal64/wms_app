@@ -4,8 +4,7 @@ import 'package:web_socket_channel/io.dart';
 import 'package:wms_app/state.dart';
 import 'package:wms_app/utils/storage_handler.dart';
 import 'package:wms_app/utils/api.dart';
-
-final String webSocketUrl = "ws://192.168.23.175:8040";
+import 'package:wms_app/env/env.dart' as env;
 
 
 void handleData(dynamic rawData) {
@@ -79,28 +78,29 @@ void handleData(dynamic rawData) {
 
 
 class WebSocketHandler {
-  static IOWebSocketChannel? wsChannel;
-  
   static Future<void> initialize() async {
-    String? cookies = await AppStorage.getString("cookies");
-    
-    WebSocketHandler.wsChannel = IOWebSocketChannel.connect(
-      Uri.parse(webSocketUrl),
-      headers: {
-        "Cookie": cookies
-      }
-    );
+    if(AppState.webSocketState.value == null) {
+      String? cookies = await AppStorage.getString("cookies");
+      
+      AppState.webSocketState.value = IOWebSocketChannel.connect(
+        Uri.parse(env.webSocketUrl),
+        headers: {
+          "Cookie": cookies
+        }
+      );
 
-    if(WebSocketHandler.wsChannel != null) {
-      WebSocketHandler.wsChannel!.stream.listen((data) {
-        handleData(data);
-      });
+      if(AppState.webSocketState.value != null) {
+        AppState.webSocketState.value!.stream.listen((data) {
+          handleData(data);
+        });
+      }
     }
   }
 
   static Future<void> close() async {
-    if(WebSocketHandler.wsChannel != null) {
-      await WebSocketHandler.wsChannel!.sink.close();
+    if(AppState.webSocketState.value != null) {
+      await AppState.webSocketState.value!.sink.close();
     }
+    
   }
 }

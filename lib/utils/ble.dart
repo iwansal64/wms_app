@@ -3,40 +3,26 @@ import 'package:wms_app/state.dart';
 import 'package:wms_app/utils/api.dart';
 
 
-// flutterBlue.startScan(timeout: Duration(seconds: 4));
-
-// var subscription = flutterBlue.scanResults.listen((results) {
-//   for (ScanResult r in results) {
-//     print('${r.device.name} found! rssi: ${r.rssi}');
-//   }
-// });
-
-// flutterBlue.stopScan();
-
 class BLE {
-  static Future<List<ScanResult>> startScan() async {
+  static Map<String, ScanResult> scanResults = {};
+  
+  static void startScan({void Function()? onUpdate}) {
     //? Starting BLE scan
     FlutterBluePlus.startScan(timeout: Duration(seconds: 5));
-
-    //? Prepare the variable to contain result
-    List<ScanResult> result = [];
 
     //? Listen to updated device discoveries
     FlutterBluePlus.scanResults.listen((results) {
       for (ScanResult scanData in results) {
         logger.i('${scanData.device.platformName} found! rssi: ${scanData.rssi}');
-        result.add(scanData);
+        scanResults[scanData.device.remoteId.str] = scanData;
+
+        if(onUpdate != null) onUpdate();
       }
     });
-
-    //? Wait for 5 seconds to gather results
-    await Future.delayed(Duration(seconds: 5));
-
-    //? Return the result
-    return result;
   }
 
   static Future<void> stopScan() async {
+    //? Stoping BLE scan
     await FlutterBluePlus.stopScan();
   }
 
