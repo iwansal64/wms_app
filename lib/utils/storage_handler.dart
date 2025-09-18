@@ -12,6 +12,10 @@ class AppStorage {
     await prefs.setString(key, value);
   }
 
+  static Future<void> removeString(String key) async {
+    await saveString(key, "");
+  }
+
   static Future<String?> getString(String key) async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(key);

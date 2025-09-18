@@ -110,6 +110,7 @@ class _DeviceListState extends State<DeviceList> {
         case NoDeviceData(:var responseCode): {
           switch(responseCode) {
             case APIResponseCode.unauthorized:
+              logout();
               AppState.pageState.value = PageStateType.login;
             default:
               break;

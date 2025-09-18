@@ -245,5 +245,6 @@ Future<GetDeviceReturnType> getDevices() async {
 }
 
 Future<void> logout() async {
+  AppStorage.removeString("logged_in");
   await removeLoginCookie();
 }
