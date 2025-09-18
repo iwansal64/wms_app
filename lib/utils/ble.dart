@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:wms_app/state.dart';
 import 'package:wms_app/utils/api.dart';
@@ -29,7 +31,7 @@ class BLE {
   static Future<bool> connect(BluetoothDevice device) async {
     try {
       logger.i("[Bluetooth] Connecting to ${device.platformName}...");
-      await device.connect(autoConnect: false); // establish connection
+      await device.connect(autoConnect: false, mtu: 100); // establish connection
       logger.i("[Bluetooth] Connected to ${device.platformName}");
       return true;
     } catch (e) {
@@ -71,11 +73,49 @@ class BLE {
   }
 
   static Future<bool> setSsid(String ssid) async {
-    return await writeToCharacteristic(AppState.wifiSsidCharacteristic.value, ssid);
+    bool result = true;
+
+    if(ssid.length <= 8) {
+      result = result && await writeToCharacteristic(AppState.wifiSsidCharacteristic.value, "[");
+      result = result && await writeToCharacteristic(AppState.wifiSsidCharacteristic.value, ssid);
+      result = result && await writeToCharacteristic(AppState.wifiSsidCharacteristic.value, "]");
+    }
+    else {
+      result = result && await writeToCharacteristic(AppState.wifiSsidCharacteristic.value, "[");
+
+      for(int i = 0; i < (ssid.length / 8).ceil(); i++) {
+        final String ssidPart = ssid.substring(i*8, min((i+1)*8, ssid.length));
+        result = result && await writeToCharacteristic(AppState.wifiSsidCharacteristic.value, ssidPart);
+      }
+
+      result = result && await writeToCharacteristic(AppState.wifiSsidCharacteristic.value, "]");
+    }
+    
+    return result;
   }
 
   static Future<bool> setPass(String pass) async {
-    return await writeToCharacteristic(AppState.wifiPassCharacteristic.value, pass);
+    bool result = true;
+    
+    if(pass.length <= 8) {
+      result = result && await writeToCharacteristic(AppState.wifiPassCharacteristic.value, "[");
+      result = result && await writeToCharacteristic(AppState.wifiPassCharacteristic.value, pass);
+      result = result && await writeToCharacteristic(AppState.wifiPassCharacteristic.value, "]");
+    }
+    else {
+      result = result && await writeToCharacteristic(AppState.wifiPassCharacteristic.value, "[");
+
+      logger.d("From: $pass");
+      for(int i = 0; i < (pass.length / 8).ceil(); i++) {
+        final String passPart = pass.substring(i*8, min((i+1)*8, pass.length));
+        logger.d("Pass Part: $passPart");
+        result = result && await writeToCharacteristic(AppState.wifiPassCharacteristic.value, passPart);
+      }
+
+      result = result && await writeToCharacteristic(AppState.wifiPassCharacteristic.value, "]");
+    }
+    
+    return result;
   }
 
   static Future<String> getLog() async {
