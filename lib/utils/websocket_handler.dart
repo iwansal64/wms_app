@@ -73,6 +73,10 @@ void handleData(dynamic rawData) {
         return device.copyWith(status: deviceStatus == 1 ? true : false);
       }).toList();
     }
+
+    else {
+      logger.d("[Web Socket] Unknown message has arrived: $message");
+    }
   }
 }
 
