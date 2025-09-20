@@ -67,6 +67,15 @@ class _DeviceScanContainerState extends State<DeviceScanContainer> {
   }
 
   void updateDeviceCards() async {
+    setState(() {
+      deviceCards = BLE.scanResults.values
+                    .where((item) => item.device.platformName.isNotEmpty)
+                    .map((item) => DiscoveredDeviceCard(device: item.device, rssi: item.rssi))
+                    .toList();
+    });
+  }
+
+  void updateDeviceCardsIntervally() async {
     // If currently not scanning
     if(!scanState) return;
 
@@ -74,12 +83,10 @@ class _DeviceScanContainerState extends State<DeviceScanContainer> {
     await Future.delayed(Duration(seconds: 2));
     
     // Update the device cards
-    setState(() {
-      deviceCards = BLE.scanResults.values.map((item) => DiscoveredDeviceCard(device: item.device, rssi: item.rssi)).toList();
-    });
+    updateDeviceCards();
 
     // Recursively call this function to update until stop scanning
-    updateDeviceCards();
+    updateDeviceCardsIntervally();
   }
 
   void onToggleScanTrigger() async {
@@ -94,7 +101,7 @@ class _DeviceScanContainerState extends State<DeviceScanContainer> {
       BLE.startScan();
 
       // Update device cards
-      updateDeviceCards();
+      updateDeviceCardsIntervally();
     }
 
     // If currently scanning
@@ -107,15 +114,8 @@ class _DeviceScanContainerState extends State<DeviceScanContainer> {
       // Stop BLE device scanning
       BLE.stopScan();
 
-      // Update the device cards one more time
-      setState(() {
-        deviceCards = BLE.scanResults.values.map(
-          (item) => DiscoveredDeviceCard(
-            device: item.device,
-            rssi: item.rssi
-          )
-        ).toList();
-      });
+      // Update lastly
+      updateDeviceCards();
     }
   }
 
