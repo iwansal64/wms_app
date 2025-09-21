@@ -31,7 +31,7 @@ class BLE {
   static Future<bool> connect(BluetoothDevice device) async {
     try {
       logger.i("[Bluetooth] Connecting to ${device.platformName}...");
-      await device.connect(autoConnect: false, mtu: 100); // establish connection
+      await device.connect(autoConnect: false); // establish connection
       logger.i("[Bluetooth] Connected to ${device.platformName}");
       return true;
     } catch (e) {
@@ -118,7 +118,30 @@ class BLE {
     return result;
   }
 
-  static Future<String> getLog() async {
-    return await readFromCharacterstics(AppState.wifiLogCharacteristic.value);
+  static Future<String> getLog({Duration? timeout}) async {
+    if(timeout == null) {
+      return await readFromCharacterstics(AppState.wifiLogCharacteristic.value);
+    }
+
+    
+    // Wait for confirmation from ESP32
+    bool success = false;
+    String data = "";
+    for (var i = 0; i < (timeout.inSeconds * 2); i++) {
+      data = await BLE.getLog();
+      if(data.isNotEmpty) {
+        success = true;
+        break;
+      }
+
+      await Future.delayed(Duration(milliseconds: 500)); // Wait for 0.5 seconds
+    }
+
+    if(success) {
+      return data;
+    }
+    else {
+      return "";
+    }
   }
 }

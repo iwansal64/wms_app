@@ -97,15 +97,6 @@ class _ConfigurationFormState extends State<ConfigurationForm> {
     });
   }
   
-
-  void onSuccessfulSave() {
-    showInfoMessage("Successfully saved!");
-  }
-
-  void onErrorSave() {
-    showInfoMessage("There's error when saving..");
-  }
-  
   
   void onSaveTrigger() async {
     logger.i("SAVING...");
@@ -122,23 +113,36 @@ class _ConfigurationFormState extends State<ConfigurationForm> {
       await BLE.setPass(wifiPASS);
     }
 
-    bool success = false;
+    // Wait for confirmation from ESP32
+    String result = await BLE.getLog(timeout: Duration(seconds: 5));
     
-    for (var i = 0; i < 4; i++) {
-      String result = await BLE.getLog();
-      if(result.isNotEmpty) {
-        success = true;
-        break;
-      }
+    if(result.isNotEmpty) {
+      setState(() {
+        wifiSSID = "";
+        wifiPASS = "";
+      });
+      
+      showInfoMessage("Wifi credentials saved!");
+      
+      await Future.delayed(Duration(seconds: 3));
+      
+      showInfoMessage("Checking internet connection...");
 
-      await Future.delayed(Duration(seconds: 1));
-    }
-    
-    if(success) {
-      onSuccessfulSave();
+      String logValue = await BLE.getLog(timeout: Duration(seconds: 10)); // Wait 10 seconds to search for WiFi connection
+
+      if(logValue == "connected") {
+        showInfoMessage("Internet connected!");
+        
+        await Future.delayed(Duration(seconds: 4));
+
+        showInfoMessage("");
+      }
+      else {
+        showErrorMessage("The WiFi is not connected");
+      }
     }
     else {
-      onErrorSave();
+      showErrorMessage("There's error when saving..");
     }
 
     setState(() {
