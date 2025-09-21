@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:wms_app/default_styles.dart';
 import 'package:wms_app/state.dart';
 import 'package:wms_app/utils/api.dart';
 import 'package:wms_app/utils/storage_handler.dart';
 import 'package:wms_app/utils/types.dart';
 import 'package:wms_app/utils/websocket_handler.dart';
+import 'package:wms_app/utils/toast.dart';
 
 
 class LoginPage extends StatelessWidget {
@@ -40,14 +42,24 @@ class LoginPage extends StatelessWidget {
                         padding: EdgeInsets.only(bottom: 20),
                         child: Column(
                           children: [
-                            const Text(
+                            Text(
                               "LOGIN",
-                              style: TextStyle(fontSize: 32, fontWeight: FontWeight.w400),
+                              style: DefaultStyles.basicTextStyle.merge(
+                                TextStyle(
+                                  fontSize: 32, 
+                                  fontWeight: FontWeight.w400
+                                )
+                              ),
                             ),
-                            const Text(
+                            Text(
                               "Login to an existing email account",
                               textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+                              style: DefaultStyles.basicTextStyle.merge(
+                                TextStyle(
+                                  fontSize: 14, 
+                                  fontWeight: FontWeight.w400
+                                )
+                              ),
                             )
                           ],
                         ),
@@ -78,14 +90,8 @@ class _FormFieldState extends State<FormFieldComponent> {
   String username = "";
   String password = "";
 
-  String errorMessage = "";
   bool loginProcess = false;
 
-  void showErrorMessage(String message) {
-    setState(() {
-      errorMessage = message;
-    });
-  }
   
 
   void onSuccessLogin() async {
@@ -101,11 +107,15 @@ class _FormFieldState extends State<FormFieldComponent> {
 
     AppState.pageState.value = PageStateType.dashboard;
   }
+
+  void onErrorLogin(APIResponseCode responseCode) {
+    Toast.showDefaultError(responseCode);
+  }
   
   
   void onLoginTrigger() async {
     if(username.isEmpty || password.isEmpty) {
-      showErrorMessage("Please fill the username and password! >:(");
+      Toast.showError(message: "Please fill the username and password! >:(");
       return;
     }
     
@@ -121,7 +131,10 @@ class _FormFieldState extends State<FormFieldComponent> {
       onSuccessLogin();
     }
     else if (result == APIResponseCode.unauthorized){
-      showErrorMessage("Username or password is wrong. :(");
+      Toast.showError(message: "Username or password is wrong. :(");
+    }
+    else {
+      onErrorLogin(result);
     }
 
     setState(() {
@@ -156,9 +169,14 @@ class _FormFieldState extends State<FormFieldComponent> {
           children: [
             Padding(
               padding: EdgeInsets.only(left: 15, bottom: 5),
-              child: const Text(
+              child: Text(
                 "Username",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                style: DefaultStyles.basicTextStyle.merge(
+                  TextStyle(
+                    fontSize: 16, 
+                    fontWeight: FontWeight.w600
+                  )
+                ),
               )
             ),
             TextField(
@@ -180,7 +198,6 @@ class _FormFieldState extends State<FormFieldComponent> {
               onChanged: (value) {
                 setState(() {
                   username = value;
-                  errorMessage = "";
                 });
               },
             )
@@ -192,9 +209,14 @@ class _FormFieldState extends State<FormFieldComponent> {
           children: [
             Padding(
               padding: EdgeInsets.only(left: 15, bottom: 5),
-              child: const Text(
+              child: Text(
                 "Password",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                style: DefaultStyles.basicTextStyle.merge(
+                  TextStyle(
+                    fontSize: 16, 
+                    fontWeight: FontWeight.w600
+                  )
+                ),
               )
             ),
             TextField(
@@ -217,18 +239,10 @@ class _FormFieldState extends State<FormFieldComponent> {
               onChanged: (value) {
                 setState(() {
                   password = value;
-                  errorMessage = "";
                 });
               },
             )
           ],
-        ),
-        Text(
-          errorMessage,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Colors.red
-          )
         ),
         Spacer(),
         Column(

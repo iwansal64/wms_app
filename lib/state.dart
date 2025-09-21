@@ -1,8 +1,34 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:wms_app/utils/model.dart';
 import 'package:wms_app/utils/types.dart';
+
+enum ToastStatus {
+  info,
+  error,
+  debug,
+  success
+}
+
+class ToastMessage {
+  final String message;
+  final ToastStatus status;
+  final Color statusColor;
+
+  const ToastMessage({ required this.message, required this.status, required this.statusColor });
+
+  factory ToastMessage.from(String message, ToastStatus status) {
+    Color statusColor = Colors.white;
+    
+    return ToastMessage(
+      message: message,
+      status: status,
+      statusColor: statusColor
+    );
+  }
+}
 
 class AppState {
   //? Telling us which page is currently should shows up
@@ -35,5 +61,9 @@ class AppState {
   //? Telling us the current bluetooth characteristic for WiFi LOG
   static ValueNotifier<BluetoothCharacteristic?> wifiLogCharacteristic = ValueNotifier(null);
 
+  //? Telling us the current active websocket channel
   static ValueNotifier<IOWebSocketChannel?> webSocketState = ValueNotifier(null);
+
+  //? Telling us the current message
+  static ValueNotifier<ToastMessage?> toastState = ValueNotifier(null);
 }
