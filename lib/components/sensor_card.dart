@@ -63,7 +63,7 @@ class _SensorValueState extends State<SensorValue> {
     
     return Text(
       "--",
-      style: default_styles.sensorValueStyle,
+      style: default_styles.basicTextStyle,
     );
   }
 }

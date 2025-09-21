@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wms_app/default_styles.dart';
 import 'package:wms_app/state.dart';
 import 'package:wms_app/utils/api.dart';
 import 'package:wms_app/utils/types.dart';
@@ -38,14 +39,24 @@ class EmailRegistrationPage extends StatelessWidget {
                         padding: EdgeInsets.only(bottom: 20),
                         child: Column(
                           children: [
-                            const Text(
+                            Text(
                               "REGISTER",
-                              style: TextStyle(fontSize: 32, fontWeight: FontWeight.w400),
+                              style: DefaultStyles.basicTextStyle.merge(
+                                TextStyle(
+                                  fontSize: 32, 
+                                  fontWeight: FontWeight.w400
+                                )
+                              ),
                             ),
-                            const Text(
+                            Text(
                               "Register a new email account",
                               textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+                              style: DefaultStyles.basicTextStyle.merge(
+                                TextStyle(
+                                  fontSize: 14, 
+                                  fontWeight: FontWeight.w400
+                                )
+                              ),
                             )
                           ],
                         ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wms_app/components/device_card.dart';
+import 'package:wms_app/default_styles.dart';
 import 'package:wms_app/state.dart';
 import 'package:wms_app/utils/api.dart';
 import 'package:wms_app/utils/model.dart';
@@ -15,67 +15,57 @@ class DeviceListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      child: Container(
-        decoration: BoxDecoration(
-          color: Color.fromARGB(255, 0, 58, 112)
-        ),
-        child: Center(
-          child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 20, horizontal: 15),
-            child: Column(
-              spacing: 15,
-              children: [
-                //? Title
-                Container(
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(width: 2),
-                    borderRadius: BorderRadius.circular(15)
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 15),
-                    child: const Text(
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+        child: Column(
+          spacing: 15,
+          children: [
+            //? Title
+            Container(
+              alignment: Alignment.center,
+              decoration: DefaultStyles.basicBoxContainerStyle,
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 15),
+                child: Column(
+                  children: [
+                    Text(
                       "Available Devices",
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 28,
-                        fontWeight: FontWeight.w400,
-                      ),
+                      style: DefaultStyles.basicTitleStyle,
+                    ),
+                    Text(
+                      "Monitor your devices here!",
+                      style: DefaultStyles.basicSubtitleStyle,
                     )
-                  ),
-                ),
-                //? Device List
-                Expanded(
-                  child: DeviceList(),
-                ),
-                //? Back to Homepage
-                GestureDetector(
-                  onTap: onBackTrigger,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(width: 2),
-                      borderRadius: BorderRadius.circular(15)
-                    ),
-                    alignment: Alignment.center,
-                    child: Padding(
-                      padding: EdgeInsets.all(15),
-                      child: const Text(
-                          "Back",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                          ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+                  ],
+                )
+              ),
             ),
-          ),
+            //? Device List
+            Expanded(
+              child: DeviceList(),
+            ),
+            //? Back to Homepage
+            GestureDetector(
+              onTap: onBackTrigger,
+              child: Container(
+                decoration: DefaultStyles.basicBoxContainerStyle,
+                alignment: Alignment.center,
+                child: Padding(
+                  padding: EdgeInsets.all(15),
+                  child: Text(
+                      "Back",
+                      style: DefaultStyles.basicTextStyle.merge(
+                        TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                        )
+                      ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -108,7 +98,7 @@ class _DeviceListState extends State<DeviceList> {
     getDevices().then((result) {
       switch(result) {
         case NoDeviceData(:var responseCode): {
-          switch(responseCode) {
+        switch(responseCode) {
             case APIResponseCode.unauthorized:
               logout();
               AppState.pageState.value = PageStateType.login;
@@ -131,11 +121,7 @@ class _DeviceListState extends State<DeviceList> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        color: const Color.fromARGB(100, 255, 255, 255),
-        border: Border.all(width: 2),
-        borderRadius: BorderRadius.circular(15),
-      ),
+      decoration: DefaultStyles.basicBoxContainerStyle,
       alignment: Alignment.topCenter,
       child: SingleChildScrollView(
         scrollDirection: Axis.vertical,
@@ -162,3 +148,105 @@ class _DeviceListState extends State<DeviceList> {
   }
 }
 
+
+class DeviceCard extends StatelessWidget {
+  final String deviceName;
+  final String createdAt;
+  final String deviceId;
+  final String description;
+  final bool status;
+  
+  const DeviceCard({ super.key, required this.deviceName, required this.createdAt, required this.deviceId, required this.description, required this.status });
+
+  void chooseDevice() async {
+    AppState.deviceIdState.value = deviceId;
+    AppState.pageState.value = PageStateType.monitor;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: chooseDevice,
+      child: AspectRatio(
+        aspectRatio: 1 / 1,
+        child: Container(
+          alignment: Alignment.topLeft,
+          decoration: DefaultStyles.basicBoxContainerSecondStyle,
+          child: Padding(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  deviceName,
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Text(
+                  description.isNotEmpty ? description : "-no description-",
+                  style: DefaultStyles.basicTextStyle.merge(
+                    TextStyle(
+                      fontSize: 16,
+                      fontWeight: description.isNotEmpty ? FontWeight.w500 : FontWeight.w300,
+                    )
+                  ),
+                ),
+                Spacer(),
+                Text(
+                  createdAt,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w300
+                  ),
+                ),
+                Text(
+                  status ? "Active" : "Not Active",
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: status ? Color.fromARGB(255, 0, 112, 0) : Colors.black
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class DeviceCardDummy extends StatelessWidget {
+  const DeviceCardDummy({ super.key });
+
+  @override
+  Widget build(BuildContext context) {
+    return Opacity(
+      opacity: 0.5,
+      child: AspectRatio(
+        aspectRatio: 1 / 1,
+        child: Container(
+          alignment: Alignment.topLeft,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: BoxBorder.all(width: 2),
+            borderRadius: BorderRadius.circular(15)
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(20),
+            child: Center(
+              child: const Text(
+                "Loading Data...",
+                style: TextStyle(
+                  fontSize: 24
+                ),
+              ),
+            )
+          ),
+        ),
+      ),
+    );
+  }
+}
