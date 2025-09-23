@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:wms_app/default_styles.dart';
 import 'package:wms_app/state.dart';
 import 'package:wms_app/utils/api.dart';
 import 'package:wms_app/utils/ble.dart';
@@ -70,7 +71,7 @@ class _ConfigurationFormState extends State<ConfigurationForm> {
   String errorMessage = "";
   bool isError = false;
   
-  bool saveProcess = false;
+  bool busyState = false;
 
   void showErrorMessage(String message) {
     setState(() {
@@ -91,7 +92,7 @@ class _ConfigurationFormState extends State<ConfigurationForm> {
     logger.i("SAVING...");
     
     setState(() {
-      saveProcess = true;
+      busyState = true;
     });
     
     if(wifiSSID.isNotEmpty) {
@@ -103,7 +104,7 @@ class _ConfigurationFormState extends State<ConfigurationForm> {
     }
 
     // Wait for confirmation from ESP32
-    String result = await BLE.getLog(timeout: Duration(seconds: 5));
+    String result = await BLE.getLog(timeout: Duration(seconds: 10));
     
     if(result.isNotEmpty) {
       setState(() {
@@ -112,30 +113,43 @@ class _ConfigurationFormState extends State<ConfigurationForm> {
       });
       
       showInfoMessage("Wifi credentials saved!");
-      
-      await Future.delayed(Duration(seconds: 3));
-      
-      showInfoMessage("Checking internet connection...");
-
-      String logValue = await BLE.getLog(timeout: Duration(seconds: 10)); // Wait 10 seconds to search for WiFi connection
-
-      if(logValue == "connected") {
-        showInfoMessage("Internet connected!");
-        
-        await Future.delayed(Duration(seconds: 4));
-
-        showInfoMessage("");
-      }
-      else {
-        showErrorMessage("The WiFi is not connected");
-      }
     }
     else {
       showErrorMessage("There's error when saving..");
     }
 
     setState(() {
-      saveProcess = false;
+      busyState = false;
+    });
+  }
+
+  void onCheckTrigger() async {
+    logger.i("CHECKING...");
+    
+    setState(() {
+      busyState = true;
+    });
+    
+    showInfoMessage("Checking internet...");
+    
+    await BLE.sendAct(act: "wifi-check");
+    String logValue = await BLE.getLog(timeout: Duration(seconds: 10)); // Wait 10 seconds to search for WiFi connection
+
+    logger.i("Log Value: $logValue");
+
+    if(logValue == "connected") {
+      showInfoMessage("Internet connected!");
+      
+      await Future.delayed(Duration(seconds: 4));
+
+      showInfoMessage("");
+    }
+    else {
+      showErrorMessage("The WiFi is not connected");
+    }
+
+    setState(() {
+      busyState = false;
     });
   }
 
@@ -149,6 +163,7 @@ class _ConfigurationFormState extends State<ConfigurationForm> {
       AppState.wifiLogCharacteristic.value = null;
       AppState.wifiPassCharacteristic.value = null;
       AppState.wifiSsidCharacteristic.value = null;
+      AppState.configurationDevice.value = null;
     }
     AppState.pageState.value = PageStateType.dashboard;
   }
@@ -247,7 +262,7 @@ class _ConfigurationFormState extends State<ConfigurationForm> {
           errorMessage,
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: isError ? Colors.red : Colors.white
+            color: isError ? Colors.red : Colors.blue
           )
         ),
         Spacer(),
@@ -255,20 +270,44 @@ class _ConfigurationFormState extends State<ConfigurationForm> {
           mainAxisAlignment: MainAxisAlignment.center,
           spacing: 15,
           children: [
-            //? Save Button
-            Opacity(
-              opacity: saveProcess ? 0.2 : 1,
-              child: OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 14),
-                  backgroundColor: Colors.black,
-                  foregroundColor: Colors.white,
-                  disabledBackgroundColor: Colors.black,
-                  disabledForegroundColor: Colors.white,
+            Row(
+              spacing: 5,
+              children: [
+                //? Save Button
+                Expanded(
+                  child: Opacity(
+                    opacity: busyState ? 0.2 : 1,
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 14),
+                        backgroundColor: Colors.black,
+                        foregroundColor: Colors.white,
+                        disabledBackgroundColor: Colors.black,
+                        disabledForegroundColor: Colors.white,
+                      ),
+                      onPressed: busyState ? null : onSaveTrigger,
+                      child: const Text("Save")
+                    ),
+                  ) 
                 ),
-                onPressed: saveProcess ? null : onSaveTrigger,
-                child: const Text("Save")
-              ),
+                //? Check Connection Button
+                Expanded(
+                  child: Opacity(
+                    opacity: busyState ? 0.2 : 1,
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 14),
+                        backgroundColor: Colors.black,
+                        foregroundColor: Colors.white,
+                        disabledBackgroundColor: Colors.black,
+                        disabledForegroundColor: Colors.white,
+                      ),
+                      onPressed: busyState ? null : onCheckTrigger,
+                      child: const Text("Check")
+                    ),
+                  ),
+                ),
+              ],
             ),
             //? Back Button
             OutlinedButton(

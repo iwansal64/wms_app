@@ -31,7 +31,7 @@ class BLE {
   static Future<bool> connect(BluetoothDevice device) async {
     try {
       logger.i("[Bluetooth] Connecting to ${device.platformName}...");
-      await device.connect(autoConnect: false); // establish connection
+      await device.connect(autoConnect: false, mtu: 512); // establish connection
       logger.i("[Bluetooth] Connected to ${device.platformName}");
       return true;
     } catch (e) {
@@ -68,7 +68,7 @@ class BLE {
 
   static Future<String> readFromCharacterstics(BluetoothCharacteristic? characteristic) async {
     if(characteristic == null) return "";
-    String data = (await characteristic.read()).toString();
+    String data = String.fromCharCodes(await characteristic.read());
     return data;
   }
 
@@ -105,14 +105,34 @@ class BLE {
     else {
       result = result && await writeToCharacteristic(AppState.wifiPassCharacteristic.value, "[");
 
-      logger.d("From: $pass");
       for(int i = 0; i < (pass.length / 8).ceil(); i++) {
         final String passPart = pass.substring(i*8, min((i+1)*8, pass.length));
-        logger.d("Pass Part: $passPart");
         result = result && await writeToCharacteristic(AppState.wifiPassCharacteristic.value, passPart);
       }
 
       result = result && await writeToCharacteristic(AppState.wifiPassCharacteristic.value, "]");
+    }
+    
+    return result;
+  }
+
+  static Future<bool> sendAct({required String act}) async {
+    bool result = true;
+    
+    if(act.length <= 8) {
+      result = result && await writeToCharacteristic(AppState.wifiActCharacteristic.value, "[");
+      result = result && await writeToCharacteristic(AppState.wifiActCharacteristic.value, act);
+      result = result && await writeToCharacteristic(AppState.wifiActCharacteristic.value, "]");
+    }
+    else {
+      result = result && await writeToCharacteristic(AppState.wifiActCharacteristic.value, "[");
+
+      for(int i = 0; i < (act.length / 8).ceil(); i++) {
+        final String actPart = act.substring(i*8, min((i+1)*8, act.length));
+        result = result && await writeToCharacteristic(AppState.wifiActCharacteristic.value, actPart);
+      }
+
+      result = result && await writeToCharacteristic(AppState.wifiActCharacteristic.value, "]");
     }
     
     return result;
@@ -140,8 +160,7 @@ class BLE {
     if(success) {
       return data;
     }
-    else {
-      return "";
-    }
+
+    return "";
   }
 }
