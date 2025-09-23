@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:wms_app/default_styles.dart';
 import 'package:wms_app/state.dart';
 import 'package:wms_app/utils/ble.dart';
+import 'package:wms_app/utils/toast.dart';
 import 'package:wms_app/utils/types.dart';
 import 'package:wms_app/env/env.dart' as env;
 
@@ -10,40 +12,34 @@ class DeviceScanPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 0, 58, 112)
-      ),
-      child: Padding(
-        padding: EdgeInsets.all(15),
-        child: Column(
-          spacing: 15,
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(width: 2),
-                borderRadius: BorderRadius.circular(15)
-              ),
-              alignment: Alignment.center,
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 15),
-                child: const Text(
-                  "Select Device",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                    decoration: TextDecoration.none
+    return Padding(
+      padding: EdgeInsets.all(15),
+      child: Column(
+        spacing: 15,
+        children: [
+          Container(
+            decoration: DefaultStyles.basicBoxContainerContentStyle,
+            alignment: Alignment.center,
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 15),
+              child: Column(
+                children: [
+                  Text(
+                    "Select Device",
+                    style: DefaultStyles.basicTitleStyle,
                   ),
-                ),
+                  Text(
+                    "Which one is the device you want to configure?",
+                    style: DefaultStyles.basicSubtitleStyle,
+                  )
+                ],
               ),
             ),
-            Expanded(
-              child: DeviceScanContainer(),
-            )
-          ],
-        ),
+          ),
+          Expanded(
+            child: DeviceScanContainer(),
+          )
+        ],
       ),
     );
   }
@@ -66,11 +62,47 @@ class _DeviceScanContainerState extends State<DeviceScanContainer> {
     AppState.pageState.value = PageStateType.dashboard;
   }
 
+  void startScan() {
+    if(scanState) return;
+
+    // Set scan state to true
+    setState(() {
+      scanState = true;
+    });
+
+    // Start BLE device scanning
+    BLE.startScan();
+
+    // Update device cards
+    updateDeviceCardsIntervally();
+  }
+
+  void stopScan() {
+    if(!scanState) return;
+
+    // Set scan state to false
+    setState(() {
+      scanState = false;
+    });
+
+    // Stop BLE device scanning
+    BLE.stopScan();
+
+    // Update lastly
+    updateDeviceCards();
+  }
+
   void updateDeviceCards() async {
     setState(() {
       deviceCards = BLE.scanResults.values
                     .where((item) => item.device.platformName.isNotEmpty)
-                    .map((item) => DiscoveredDeviceCard(device: item.device, rssi: item.rssi))
+                    .map((item) => DiscoveredDeviceCard(
+                      device: item.device, 
+                      rssi: item.rssi,
+                      onSelect: () {
+                        stopScan();
+                      },
+                    ))
                     .toList();
     });
   }
@@ -89,33 +121,17 @@ class _DeviceScanContainerState extends State<DeviceScanContainer> {
     updateDeviceCardsIntervally();
   }
 
-  void onToggleScanTrigger() async {
+  void onToggleScanTrigger() {
     // If currently not scanning
     if(!scanState) {
-      // Set scan state to true
-      setState(() {
-        scanState = true;
-      });
-      
-      // Start BLE device scanning
-      BLE.startScan();
-
-      // Update device cards
-      updateDeviceCardsIntervally();
+      // Start scanning
+      startScan();
     }
 
     // If currently scanning
     else {
-      // Set scan state to false
-      setState(() {
-        scanState = false;
-      });
-      
-      // Stop BLE device scanning
-      BLE.stopScan();
-
-      // Update lastly
-      updateDeviceCards();
+      // Stop scanning
+      stopScan();
     }
   }
 
@@ -149,35 +165,35 @@ class _DeviceScanContainerState extends State<DeviceScanContainer> {
                   // If there's no devices
                   // If current scanning
                   scanState ?
-                    const Text(
+                    Text(
                       "Scanning..",
-                      style: TextStyle(
-                        color: Colors.black,
-                        decoration: TextDecoration.none,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700
+                      style: DefaultStyles.basicTextStyle.merge(
+                        TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700
+                        )
                       ),
                     )
                     :
                   // If currently not scanning
                     Column(
                       children: [
-                        const Text(
+                        Text(
                           "There's no devices",
-                          style: TextStyle(
-                            color: Colors.black,
-                            decoration: TextDecoration.none,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700
+                          style: DefaultStyles.basicTextStyle.merge(
+                            TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400
+                            )
                           ),
                         ),
-                        const Text(
-                          "Please scan for devices to dicover",
-                          style: TextStyle(
-                            color: Colors.black,
-                            decoration: TextDecoration.none,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w400
+                        Text(
+                          "Please scan to discover devices",
+                          style: DefaultStyles.basicTextStyle.merge(
+                            TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400
+                            )
                           ),
                         )
                       ],
@@ -191,31 +207,27 @@ class _DeviceScanContainerState extends State<DeviceScanContainer> {
             onTap: onToggleScanTrigger,
             child: Container(
               alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(width: 2),
-                borderRadius: BorderRadius.circular(15)
-              ),
+              decoration: DefaultStyles.basicBoxContainerContentStyle,
               child: Padding(
                 padding: EdgeInsets.all(10),
                 child: Column(
                   children: [
                     Text(
                       scanState ? "Stop Scan" : "Start Scan",
-                      style: TextStyle(
-                        color: Colors.black,
-                        decoration: TextDecoration.none,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700
+                      style: DefaultStyles.basicTextStyle.merge(
+                        TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700
+                        )
                       ),
                     ),
                     Text(
                       scanState ? "" : "Search for ESP32 device to configure",
-                      style: TextStyle(
-                        color: Colors.black,
-                        decoration: TextDecoration.none,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400
+                      style: DefaultStyles.basicTextStyle.merge(
+                        TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400
+                        )
                       ),
                     ),
                   ],
@@ -231,22 +243,18 @@ class _DeviceScanContainerState extends State<DeviceScanContainer> {
               opacity: scanState ? 0.2 : 1,
               child: Container(
                 alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(width: 2),
-                  borderRadius: BorderRadius.circular(15)
-                ),
+                decoration: DefaultStyles.basicBoxContainerContentStyle,
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
                   child: Column(
                     children: [
-                      const Text(
+                      Text(
                         "Back",
-                        style: TextStyle(
-                          color: Colors.black,
-                          decoration: TextDecoration.none,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700
+                        style: DefaultStyles.basicTextStyle.merge(
+                          TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700
+                          )
                         ),
                       )
                     ],
@@ -287,7 +295,7 @@ class _DiscoveredDeviceCardState extends State<DiscoveredDeviceCard> {
       List<BluetoothCharacteristic> characteristics = await BLE.gatherCharacteristics(widget.device);
       
       // Update all of the characteristics in app state
-      List<bool> characteristicsCheck = [false, false, false];
+      List<bool> characteristicsCheck = List.filled(4, false);
       for(BluetoothCharacteristic characteristic in characteristics) {
         switch (characteristic.characteristicUuid.toString()) {
           // Set WiFi SSID Characteristics
@@ -308,6 +316,12 @@ class _DiscoveredDeviceCardState extends State<DiscoveredDeviceCard> {
             characteristicsCheck[2] = true;
             break;
 
+          // Set WiFi LOG Characteristics
+          case env.wifiActCharacteristicUuid:
+            AppState.wifiActCharacteristic.value = characteristic;
+            characteristicsCheck[3] = true;
+            break;
+
           default:
             break;
         }
@@ -321,8 +335,9 @@ class _DiscoveredDeviceCardState extends State<DiscoveredDeviceCard> {
       }
       else {
         widget.device.disconnect();
+
+        Toast.showError(message: "Can't connect to a device that is not an ILDUP device");
       }
-    
     }
     
     setState(() {

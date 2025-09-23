@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wms_app/default_styles.dart' as default_styles;
+import 'package:wms_app/default_styles.dart';
 
 class SensorCard extends StatelessWidget {
   final String sensorNumber;
@@ -63,7 +63,7 @@ class _SensorValueState extends State<SensorValue> {
     
     return Text(
       "--",
-      style: default_styles.basicTextStyle,
+      style: DefaultStyles.basicTextStyle,
     );
   }
 }

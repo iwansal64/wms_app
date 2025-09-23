@@ -11,58 +11,47 @@ class DeviceConfigurationPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 0, 58, 112)
+    return Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: 600,
+          maxHeight: 700
         ),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: 600,
-              maxHeight: 700
-            ),
-            child: FractionallySizedBox(
-              heightFactor: 0.8,
-              widthFactor: 0.8,
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(width: 2, color: Colors.black),
-                  borderRadius: BorderRadius.circular(20),
-                  color: Color.fromARGB(100, 255, 255, 255),
-                ),
-                child: Padding(
-                  padding: EdgeInsets.all(40),
-                  child: Column(
-                    spacing: 15,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(bottom: 20),
-                        child: Column(
-                          children: [
-                            const Text(
-                              "Configuration",
-                              style: TextStyle(fontSize: 32, fontWeight: FontWeight.w400),
-                            ),
-                            const Text(
-                              "Configure your device",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
-                            )
-                          ],
+        child: FractionallySizedBox(
+          heightFactor: 0.8,
+          widthFactor: 0.8,
+          child: Container(
+            decoration: DefaultStyles.basicBoxContainerContentStyle,
+            child: Padding(
+              padding: EdgeInsets.all(40),
+              child: Column(
+                spacing: 15,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 20),
+                    child: Column(
+                      children: [
+                        const Text(
+                          "Configuration",
+                          style: TextStyle(fontSize: 32, fontWeight: FontWeight.w400),
                         ),
-                      ),
-                      Expanded(
-                        child: ConfigurationForm()
-                      )
-                    ],
+                        const Text(
+                          "Configure your device",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+                        )
+                      ],
+                    ),
                   ),
-                ),
+                  Expanded(
+                    child: ConfigurationForm()
+                  )
+                ],
               ),
             ),
-          )
+          ),
         ),
-      ),
+      )
     );
   }
 }

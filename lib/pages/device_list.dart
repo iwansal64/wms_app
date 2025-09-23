@@ -24,7 +24,7 @@ class DeviceListPage extends StatelessWidget {
             //? Title
             Container(
               alignment: Alignment.center,
-              decoration: DefaultStyles.basicBoxContainerStyle,
+              decoration: DefaultStyles.basicBoxContainerContentStyle,
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 15),
                 child: Column(
@@ -49,7 +49,7 @@ class DeviceListPage extends StatelessWidget {
             GestureDetector(
               onTap: onBackTrigger,
               child: Container(
-                decoration: DefaultStyles.basicBoxContainerStyle,
+                decoration: DefaultStyles.basicBoxContainerContentStyle,
                 alignment: Alignment.center,
                 child: Padding(
                   padding: EdgeInsets.all(15),
@@ -121,7 +121,10 @@ class _DeviceListState extends State<DeviceList> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: DefaultStyles.basicBoxContainerStyle,
+      decoration: BoxDecoration(
+        border: Border.all(width: 2, color: Colors.white),
+        borderRadius: BorderRadius.circular(15)
+      ),
       alignment: Alignment.topCenter,
       child: SingleChildScrollView(
         scrollDirection: Axis.vertical,
@@ -171,7 +174,7 @@ class DeviceCard extends StatelessWidget {
         aspectRatio: 1 / 1,
         child: Container(
           alignment: Alignment.topLeft,
-          decoration: DefaultStyles.basicBoxContainerSecondStyle,
+          decoration: DefaultStyles.basicBoxContainerContentStyle,
           child: Padding(
             padding: EdgeInsets.all(20),
             child: Column(

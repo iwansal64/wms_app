@@ -19,7 +19,8 @@ class ToastCard extends StatelessWidget {
           child: ConstrainedBox(
             constraints: BoxConstraints(
               minWidth: 200,
-              minHeight: 100
+              minHeight: 100,
+              maxWidth: MediaQuery.of(context).size.width - 100
             ),
             child: Container(
               decoration: BoxDecoration(
@@ -31,10 +32,11 @@ class ToastCard extends StatelessWidget {
                 padding: EdgeInsets.all(15),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   spacing: 5,
                   children: [
                     Text(
-                      value.status.toString(),
+                      value.status.name,
                       style: TextStyle(
                         fontSize: 16,
                         color: value.statusColor,

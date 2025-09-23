@@ -25,12 +25,12 @@ class DashboardPage extends StatelessWidget{
     return Padding(
       padding: EdgeInsets.all(15),
       child: Column(
-        spacing: 5,
+        spacing: 25,
         children: [
           Container(
             alignment: Alignment.center,
             child: Container(
-              decoration: DefaultStyles.basicBoxContainerStyle,
+              decoration: DefaultStyles.basicBoxContainerContentStyle,
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 20, horizontal: 30),
                 child: Row(
@@ -87,51 +87,47 @@ class DashboardPage extends StatelessWidget{
           Expanded(
             child: Container(
               alignment: Alignment.center,
-              decoration: DefaultStyles.basicBoxContainerStyle,
-              child: Padding(
-                padding: EdgeInsets.all(30),
-                child: Column(
-                  spacing: 30,
-                  children: [
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: onGotoDeviceListTriggered,
-                        child: Container(
-                          alignment: Alignment.center,
-                          decoration: DefaultStyles.basicBoxContainerSecondStyle,
-                          child: Text(
-                            "List of Devices",
-                            style: DefaultStyles.basicTextStyle.merge(
-                              TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.w600
-                              )
-                            ),
+              child: Column(
+                spacing: 15,
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: onGotoDeviceListTriggered,
+                      child: Container(
+                        alignment: Alignment.center,
+                        decoration: DefaultStyles.basicBoxContainerContentStyle,
+                        child: Text(
+                          "List of Devices",
+                          style: DefaultStyles.basicTextStyle.merge(
+                            TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w600
+                            )
                           ),
                         ),
-                      )
-                    ),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: onGotoDeviceConfigureTriggered,
-                        child: Container(
-                          alignment: Alignment.center,
-                          decoration: DefaultStyles.basicBoxContainerSecondStyle,
-                          child: Text(
-                            "Configure Device",
-                            style: DefaultStyles.basicTextStyle.merge(
-                              TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.w600
-                              )
-                            ),
+                      ),
+                    )
+                  ),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: onGotoDeviceConfigureTriggered,
+                      child: Container(
+                        alignment: Alignment.center,
+                        decoration: DefaultStyles.basicBoxContainerContentStyle,
+                        child: Text(
+                          "Configure Device",
+                          style: DefaultStyles.basicTextStyle.merge(
+                            TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w600
+                            )
                           ),
                         ),
-                      )
-                    ),
-                  ],
-                )
-              ),
+                      ),
+                    )
+                  ),
+                ],
+              )
             ),
           ),
         ],
