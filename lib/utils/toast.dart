@@ -57,7 +57,7 @@ class Toast {
       case APIResponseCode.timeout:
         Toast.showError(message: "Can't reach server :/");
       case APIResponseCode.socketError:
-        Toast.showError(message: "Server doesn't want to response :(");
+        Toast.showError(message: "Server doesn't want to response.");
       case APIResponseCode.error:
         Toast.showError(message: "Unexpected error has occured!");
     }

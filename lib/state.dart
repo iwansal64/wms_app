@@ -20,7 +20,19 @@ class ToastMessage {
   const ToastMessage({ required this.message, required this.status, required this.statusColor });
 
   factory ToastMessage.from(String message, ToastStatus status) {
-    Color statusColor = Colors.white;
+    Color statusColor = Colors.black;
+
+    switch(status) {
+      case ToastStatus.info:
+        statusColor = Colors.blue;
+      case ToastStatus.error:
+        statusColor = Colors.red;
+      case ToastStatus.debug:
+        statusColor = Colors.orange;
+      case ToastStatus.success:
+        statusColor = Colors.green;
+    }
+
     
     return ToastMessage(
       message: message,
@@ -60,6 +72,9 @@ class AppState {
 
   //? Telling us the current bluetooth characteristic for WiFi LOG
   static ValueNotifier<BluetoothCharacteristic?> wifiLogCharacteristic = ValueNotifier(null);
+
+  //? Telling us the current bluetooth characteristic for WiFi ACT
+  static ValueNotifier<BluetoothCharacteristic?> wifiActCharacteristic = ValueNotifier(null);
 
   //? Telling us the current active websocket channel
   static ValueNotifier<IOWebSocketChannel?> webSocketState = ValueNotifier(null);
