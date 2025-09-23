@@ -96,6 +96,8 @@ class WebSocketHandler {
       if(AppState.webSocketState.value != null) {
         AppState.webSocketState.value!.stream.listen((data) {
           handleData(data);
+        }, onError: (err) {
+          logger.d("[Web Socket] Error when trying to connect through web socket: ${err.toString()}");
         });
       }
     }
